@@ -1,4 +1,4 @@
-# Health Care App
+# Zynergy
 
 Selamat datang di repositori *Zynergy*. Proyek ini adalah aplikasi mobile Flutter yang bertujuan untuk membantu pengguna mengelola kesehatan mereka melalui fitur-fitur seperti pengingat makan, tidur, aktivitas ringan, dan pemeriksaan kesehatan rutin, serta memberikan rekomendasi makanan dan artikel kesehatan sesuai dengan kondisi pengguna.
 
