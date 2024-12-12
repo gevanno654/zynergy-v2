@@ -35,12 +35,12 @@ Selamat datang di repositori *Zynergy*. Proyek ini adalah aplikasi mobile Flutte
 ### Langkah Instalasi
 
 1. Clone repositori ini:
-git clone https://github.com/gevanno654/zynergy-v2.git
-cd zynergy-v2
+`git clone https://github.com/gevanno654/zynergy-v2.git`
+`cd zynergy-v2`
    
 
 2. Install dependensi:
-flutter pub get
+`flutter pub get`
    
 
 ## Menjalankan aplikasi
@@ -48,10 +48,10 @@ flutter pub get
 1. Pastikan emulator Android atau perangkat fisik sudah terhubung dan terdeteksi oleh Android Studio.
 
 2. Jalankan aplikasi debug:
-flutter run --debug
+`flutter run --debug`
 
 3. Jalankan aplikasi release:
-flutter run --release
+`flutter run --release`
 
 ## Pengujian
 
