@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 import 'tambah_jadwal_olahraga.dart';
 import 'edit_jadwal_olahraga.dart';
 import '../core/config/strings/app_text.dart';
@@ -290,41 +291,46 @@ class _PengingatOlahragaScreenState extends State<PengingatOlahragaScreen> {
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
                     (context, index) {
-                  final reminder = _lightActivityReminders[index];
-                  final scheduledDate = DateTime(
-                    DateTime.now().year,
-                    DateTime.now().month,
-                    DateTime.now().day,
-                    reminder['activity_hour'],
-                    reminder['activity_minute'],
-                  );
-                  return _buildScheduleCardWithEdit(
-                    reminder['activity_name'],
-                    '${reminder['activity_hour'].toString().padLeft(2, '0')}:${reminder['activity_minute'].toString().padLeft(2, '0')}',
-                    reminder['activity_frequency'] == 1 ? 'Harian' : 'Sekali',
-                    reminder['toggle_value'] == 1,
-                        (value) {
-                      setState(() {
-                        reminder['toggle_value'] = value ? 1 : 0;
-                        updateToggleValueLightActivityReminder(reminder['id'], reminder['toggle_value']);
-                        _toggleNotification(reminder['activity_name'], value, scheduledDate, reminder['activity_frequency'] == 1 ? 'Harian' : 'Sekali', reminder['activity_name'], 'Ingatlah untuk ${reminder['activity_name'].toLowerCase()}!');
-                      });
-                    },
-                        () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => EditJadwalOlahragaScreen(initialData: reminder),
-                        ),
-                      ).then((result) {
-                        if (result == true) {
-                          fetchLightActivityReminders();
-                        }
-                      });
-                    },
-                  );
+                  if (_lightActivityReminders.isEmpty) {
+                    // Tampilkan efek Shimmer jika data masih kosong
+                    return _buildShimmerLoading();
+                  } else {
+                    final reminder = _lightActivityReminders[index];
+                    final scheduledDate = DateTime(
+                      DateTime.now().year,
+                      DateTime.now().month,
+                      DateTime.now().day,
+                      reminder['activity_hour'],
+                      reminder['activity_minute'],
+                    );
+                    return _buildScheduleCardWithEdit(
+                      reminder['activity_name'],
+                      '${reminder['activity_hour'].toString().padLeft(2, '0')}:${reminder['activity_minute'].toString().padLeft(2, '0')}',
+                      reminder['activity_frequency'] == 1 ? 'Harian' : 'Sekali',
+                      reminder['toggle_value'] == 1,
+                          (value) {
+                        setState(() {
+                          reminder['toggle_value'] = value ? 1 : 0;
+                          updateToggleValueLightActivityReminder(reminder['id'], reminder['toggle_value']);
+                          _toggleNotification(reminder['activity_name'], value, scheduledDate, reminder['activity_frequency'] == 1 ? 'Harian' : 'Sekali', reminder['activity_name'], 'Ingatlah untuk ${reminder['activity_name'].toLowerCase()}!');
+                        });
+                      },
+                          () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditJadwalOlahragaScreen(initialData: reminder),
+                          ),
+                        ).then((result) {
+                          if (result == true) {
+                            fetchLightActivityReminders();
+                          }
+                        });
+                      },
+                    );
+                  }
                 },
-                childCount: _lightActivityReminders.length,
+                childCount: _lightActivityReminders.isEmpty ? 3 : _lightActivityReminders.length, // Jumlah shimmer item
               ),
             ),
           ),
@@ -378,6 +384,21 @@ class _PengingatOlahragaScreenState extends State<PengingatOlahragaScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        height: 70,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+      ),
     );
   }
 

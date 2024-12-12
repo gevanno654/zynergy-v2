@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart'; // Tambahkan ini
 import 'package:shared_preferences/shared_preferences.dart'; // Tambahkan ini
+import 'package:shimmer/shimmer.dart';
 import 'tambah_jadwal_cek_kesehatan.dart';
 import 'edit_jadwal_cek_kesehatan.dart';
 import '../core/config/assets/app_vectors.dart';
@@ -259,48 +260,53 @@ class _PengingatCekKesehatanScreenState extends State<PengingatCekKesehatanScree
                   return null;
                 }
 
-                final reminder = filteredReminders[index];
-                final date = DateTime(
-                  reminder['checkup_year'],
-                  reminder['checkup_month'],
-                  reminder['checkup_date'],
-                );
-                final formattedDate = DateFormat('EEEE, d MMM y', 'id').format(date);
-                final time = TimeOfDay(hour: reminder['checkup_hour'], minute: reminder['checkup_minute']);
+                if (filteredReminders.isEmpty) {
+                  // Tampilkan efek Shimmer jika data masih kosong
+                  return _buildShimmerLoading();
+                } else {
+                  final reminder = filteredReminders[index];
+                  final date = DateTime(
+                    reminder['checkup_year'],
+                    reminder['checkup_month'],
+                    reminder['checkup_date'],
+                  );
+                  final formattedDate = DateFormat('EEEE, d MMM y', 'id').format(date);
+                  final time = TimeOfDay(hour: reminder['checkup_hour'], minute: reminder['checkup_minute']);
 
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Column(
-                    children: [
-                      _buildEventCard(
-                        formattedDate,
-                        reminder['checkup_name'],
-                            () {
-                          _showInfoDialog(context, reminder, formattedDate, time);
-                        },
-                            () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EditJadwalCekKesehatanScreen(
-                                initialDate: date,
-                                initialTime: time,
-                                initialTitle: reminder['checkup_name'],
-                                initialNote: reminder['checkup_note'],
-                                reminderId: reminder['id'],
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      children: [
+                        _buildEventCard(
+                          formattedDate,
+                          reminder['checkup_name'],
+                              () {
+                            _showInfoDialog(context, reminder, formattedDate, time);
+                          },
+                              () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditJadwalCekKesehatanScreen(
+                                  initialDate: date,
+                                  initialTime: time,
+                                  initialTitle: reminder['checkup_name'],
+                                  initialNote: reminder['checkup_note'],
+                                  reminderId: reminder['id'],
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                            () {
-                          _showDeleteConfirmationDialog(context, reminder['id']);
-                        },
-                      ),
-                      if (index == filteredReminders.length - 1) // Jika ini adalah card terakhir
-                        SizedBox(height: 10),
-                    ],
-                  ),
-                );
+                            );
+                          },
+                              () {
+                            _showDeleteConfirmationDialog(context, reminder['id']);
+                          },
+                        ),
+                        if (index == filteredReminders.length - 1) // Jika ini adalah card terakhir
+                          SizedBox(height: 10),
+                      ],
+                    ),
+                  );
+                }
               },
               childCount: _hasSelectedDate
                   ? _healthCheckupReminders.where((reminder) {
@@ -346,6 +352,21 @@ class _PengingatCekKesehatanScreenState extends State<PengingatCekKesehatanScree
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        height: 70,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+      ),
     );
   }
 
@@ -461,7 +482,7 @@ class _PengingatCekKesehatanScreenState extends State<PengingatCekKesehatanScree
             ),
             TextButton(
               child: Text(
-                  'Hapus',
+                'Hapus',
                 style: TextStyle(
                   color: Colors.white,
                 ),

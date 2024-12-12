@@ -46,23 +46,13 @@ class _SplashScreenState extends State<SplashScreen> {
         );
       });
     } else {
-      // Jika onboarding sudah selesai, biarkan _checkAuthToken mengatur navigasi
-      return;
+      // Jika onboarding sudah selesai, lanjutkan ke _checkAuthToken
+      _checkAuthToken();
     }
   }
 
   Future<void> _checkAuthToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool isFirstInstall = prefs.getBool('isFirstInstall') ?? true;
-
-    // Jika onboarding belum selesai, abaikan logika token
-    if (isFirstInstall) return;
-
     String? token = await _storage.read(key: 'auth_token');
-
-    if (token != null) {
-      // Verifikasi token jika diperlukan
-    }
 
     Future.delayed(Duration(seconds: 2), () {
       if (token == null) {
@@ -233,10 +223,7 @@ class _SplashScreenState extends State<SplashScreen> {
     _scheduleDefaultExerciseNotifications();
 
     // Prioritaskan onboarding status
-    _checkOnboardingStatus().then((_) {
-      // Periksa token hanya jika onboarding tidak diperlukan
-      _checkAuthToken();
-    });
+    _checkOnboardingStatus();
   }
 
   @override

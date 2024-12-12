@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../core/config/assets/app_vectors.dart';
+import '../core/config/theme/app_colors.dart';
 import '../api/api_service.dart';
 import 'beranda_screen.dart';
 
 class PersonalizationScreen extends StatefulWidget {
+  final bool fromProfil; // Tambahkan parameter ini
+
+  PersonalizationScreen({this.fromProfil = false}); // Default value adalah false
+
   @override
   _PersonalizationScreenState createState() => _PersonalizationScreenState();
 }
@@ -86,7 +91,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
     {'id': 13, 'name': 'Wijen'},
     {'id': 14, 'name': 'Bawang Putih'},
     {'id': 15, 'name': 'Seledri'},
-    {'id': 0,'name': 'Tidak Ada'},
+    {'id': 0, 'name': 'Gaada'},
   ];
 
   List<int> _selectedInterests = [];
@@ -124,6 +129,54 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
         }
       }
     });
+  }
+
+  void _showWarningDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            'Dilarang Skip!',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 24,
+              color: AppColors.darkGrey,
+            ),
+          ),
+          content: Text(
+            message,
+            style: TextStyle(
+              fontWeight: FontWeight.normal,
+              fontSize: 16,
+              color: AppColors.darkGrey,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(
+                'OK',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: TextButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _savePersonalizationData() async {
@@ -181,110 +234,136 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 108.0),
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (int page) {
-                  setState(() {
-                    if (page == 5 || (page == 4 && _selectedAllergies.isNotEmpty)) {
-                      _currentPage = page;
-                    } else if (page == 4 && _selectedAllergies.isEmpty) {
-                      // Show error dialog or snackbar
-                      print("Pilih minimal 1 pantangan atau alergi");
-                    }
-                  });
-                },
-                itemCount: 6,
-                itemBuilder: (context, index) {
-                  switch (index) {
-                    case 0:
-                      return _buildGenderPage();
-                    case 1:
-                      return _buildFirstPage();
-                    case 2:
-                      return _buildSecondPage();
-                    case 3:
-                      return _buildThirdPage();
-                    case 4:
-                      return _buildFourthPage();
-                    case 5:
-                      return _buildFifthPage();
-                    default:
-                      return Container();
+          // Konten utama
+          Column(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 108.0),
+                  child: PageView.builder(
+                    controller: _pageController,
+                    onPageChanged: (int page) {
+                      setState(() {
+                        if (page == 1 && _selectedGender == null) {
+                          _showWarningDialog("Spill Jenis Kelaminmu dulu!");
+                          _pageController.jumpToPage(_currentPage);
+                        } else if (page == 2 && _selectedInterests.isEmpty) {
+                          _showWarningDialog("Spill minimal 1 aktivitas kesukaanmu!");
+                          _pageController.jumpToPage(_currentPage);
+                        } else if (page == 3 && _selectedFavorites.isEmpty) {
+                          _showWarningDialog("Spill minimal 1 makanan kesukaanmu!");
+                          _pageController.jumpToPage(_currentPage);
+                        } else if (page == 4 && _selectedDiseases.isEmpty) {
+                          _showWarningDialog("Spill minimal 1 riwayat penyakitmu!");
+                          _pageController.jumpToPage(_currentPage);
+                        } else if (page == 5 && _selectedAllergies.isEmpty) {
+                          _showWarningDialog("Spill minimal 1 pantangan atau alergi!");
+                          _pageController.jumpToPage(_currentPage);
+                        } else {
+                          _currentPage = page;
+                        }
+                      });
+                    },
+                    itemCount: 6,
+                    itemBuilder: (context, index) {
+                      switch (index) {
+                        case 0:
+                          return _buildGenderPage();
+                        case 1:
+                          return _buildFirstPage();
+                        case 2:
+                          return _buildSecondPage();
+                        case 3:
+                          return _buildThirdPage();
+                        case 4:
+                          return _buildFourthPage();
+                        case 5:
+                          return _buildFifthPage();
+                        default:
+                          return Container();
+                      }
+                    },
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 320,
+                height: 50,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF1FC29D),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                  ),
+                  onPressed: _currentPage == 5
+                      ? () async {
+                    await _savePersonalizationData();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => BerandaScreen()),
+                    );
                   }
+                      : () async {
+                    if (_currentPage == 0 && _selectedGender == null) {
+                      _showWarningDialog("Spill Jenis Kelaminmu dulu!");
+                      return;
+                    }
+
+                    if (_currentPage == 1 && _selectedInterests.isEmpty) {
+                      _showWarningDialog("Spill minimal 1 aktivitas kesukaanmu!");
+                      return;
+                    }
+
+                    if (_currentPage == 2 && _selectedFavorites.isEmpty) {
+                      _showWarningDialog("Spill minimal 1 makanan kesukaanmu!");
+                      return;
+                    }
+
+                    if (_currentPage == 3 && _selectedDiseases.isEmpty) {
+                      _showWarningDialog("Spill minimal 1 riwayat penyakitmu!");
+                      return;
+                    }
+
+                    if (_currentPage == 4 && _selectedAllergies.isEmpty) {
+                      _showWarningDialog("Spill minimal 1 pantangan atau alergi!");
+                      return;
+                    }
+
+                    // Pindah ke halaman berikutnya jika validasi terpenuhi
+                    await _savePersonalizationData();
+                    _pageController.nextPage(
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.easeIn,
+                    );
+                  },
+                  child: Text(
+                    _currentPage == 5 ? 'Gaaasss!' : 'Lanjut',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+            ],
+          ),
+
+          // Tombol "Batal" di pojok kiri atas
+          if (widget.fromProfil) // Hanya tampilkan jika dari ProfilScreen
+            Positioned(
+              top: 46,
+              left: 10,
+              child: IconButton(
+                icon: Icon(Icons.arrow_back, color: Colors.black),
+                onPressed: () {
+                  Navigator.pop(context); // Kembali ke ProfilScreen
                 },
               ),
             ),
-          ),
-          SizedBox(
-            width: 320,
-            height: 50,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF1FC29D),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-              ),
-              onPressed: _currentPage == 5
-                  ? () async {
-                await _savePersonalizationData();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => BerandaScreen()),
-                );
-              }
-                  : () async {
-                if (_currentPage == 0 && _selectedGender == null) {
-                  // Show error dialog or snackbar
-                  print("Pilih jenis kelamin terlebih dahulu");
-                  return;
-                }
-
-                if (_currentPage == 1 && _selectedInterests.isEmpty) {
-                  // Show error dialog or snackbar
-                  print("Pilih minimal 1 minat aktivitasmu");
-                  return;
-                }
-
-                if (_currentPage == 2 && _selectedFavorites.isEmpty) {
-                  // Show error dialog or snackbar
-                  print("Pilih minimal 1 kesukaan yang kamu konsumsi");
-                  return;
-                }
-
-                if (_currentPage == 3 && _selectedDiseases.isEmpty) {
-                  // Show error dialog or snackbar
-                  print("Pilih minimal 1 riwayat penyakitmu");
-                  return;
-                }
-
-                if (_currentPage == 4 && _selectedAllergies.isEmpty) {
-                  // Show error dialog or snackbar
-                  print("Pilih minimal 1 pantangan atau alergi");
-                  return;
-                }
-
-                await _savePersonalizationData();
-                _pageController.nextPage(
-                  duration: Duration(milliseconds: 300),
-                  curve: Curves.easeIn,
-                );
-              },
-              child: Text(
-                _currentPage == 5 ? 'Mulai Sekarang' : 'Selanjutnya',
-                style: TextStyle(
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
         ],
       ),
     );
@@ -300,7 +379,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "Pilih Jenis Kelaminmu",
+                "Spill Jenis Kelaminmu",
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w600,
@@ -315,8 +394,8 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "Tambahkan personalisasi untuk rekomendasimu",
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                "Isi personalisasi untuk rekomendasimu",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
               ),
             ],
           ),
@@ -334,50 +413,79 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              GestureDetector(
-                onTap: () => setState(() => _selectedGender = 'male'),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: _selectedGender == 'male' ? Color(0xFF1FC29D) : Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                    border: _selectedGender == 'male' ? null : Border.all(color: Color(0xFFDFDFDF), width: 1.5),
-                  ),
-                  child: Text(
-                    'Laki-laki',
-                    style: TextStyle(
-                      color: _selectedGender == 'male' ? Colors.white : Colors.black,
+              Column(
+                children: [
+                  GestureDetector(
+                    onTap: () => setState(() => _selectedGender = 'male'),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: _selectedGender == 'male' ? AppColors.primary : Colors.transparent,
+                        borderRadius: BorderRadius.circular(8),
+                        border: _selectedGender == 'male' ? null : Border.all(color: Color(0xFFDFDFDF), width: 1.5),
+                      ),
+                      child: Image.asset(
+                        'assets/images/male_avatar.png',
+                        width: 130,
+                        height: 130,
+                      ),
                     ),
                   ),
-                ),
+                  SizedBox(height: 8), // Jarak antara gambar dan teks
+                  Text(
+                    'Cowok',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: _selectedGender == 'male' ? AppColors.primary : Colors.black,
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(width: 20),
-              GestureDetector(
-                onTap: () => setState(() => _selectedGender = 'female'),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: _selectedGender == 'female' ? Color(0xFF1FC29D) : Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                    border: _selectedGender == 'female' ? null : Border.all(color: Color(0xFFDFDFDF), width: 1.5),
-                  ),
-                  child: Text(
-                    'Perempuan',
-                    style: TextStyle(
-                      color: _selectedGender == 'female' ? Colors.white : Colors.black,
+              SizedBox(width: 16),
+              Column(
+                children: [
+                  GestureDetector(
+                    onTap: () => setState(() => _selectedGender = 'female'),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: _selectedGender == 'female' ? AppColors.primary : Colors.transparent,
+                        borderRadius: BorderRadius.circular(8),
+                        border: _selectedGender == 'female' ? null : Border.all(color: Color(0xFFDFDFDF), width: 1.5),
+                      ),
+                      child: Image.asset(
+                        'assets/images/female_avatar.png',
+                        width: 130,
+                        height: 130,
+                      ),
                     ),
                   ),
-                ),
+                  SizedBox(height: 8), // Jarak antara gambar dan teks
+                  Text(
+                    'Cewek',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: _selectedGender == 'female' ? AppColors.primary : Colors.black,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
           if (_selectedGender == null)
-            Padding(
-              padding: const EdgeInsets.only(top: 20.0),
-              child: Text(
-                'Pilih jenis kelamin terlebih dahulu',
-                style: TextStyle(color: Colors.red),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: Text(
+                    'Pilih jenis kelamin terlebih dahulu',
+                    style: TextStyle(
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
+              ],
             ),
         ],
       ),
@@ -386,8 +494,8 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
 
   Widget _buildFirstPage() {
     return _buildPage(
-      title: "Pilih Minat\nAktivitasmu",
-      description: "Tambahkan personalisasi untuk rekomendasimu",
+      title: "Spill Aktivitas\nKesukaanmu",
+      description: "Isi personalisasi untuk rekomendasimu",
       items: _interests,
       selectedList: _selectedInterests,
     );
@@ -395,8 +503,8 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
 
   Widget _buildSecondPage() {
     return _buildPage(
-      title: "Pilih Kesukaan\nyang Kamu Konsumsi",
-      description: "Tambahkan personalisasi untuk rekomendasimu",
+      title: "Spill Makanan\nKesukaanmu",
+      description: "Isi personalisasi untuk rekomendasimu",
       items: _favorites,
       selectedList: _selectedFavorites,
     );
@@ -404,8 +512,8 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
 
   Widget _buildThirdPage() {
     return _buildPage(
-      title: "Adakah Riwayat\nPenyakitmu?",
-      description: "Tambahkan untuk memaksimalkan aplikasi ini",
+      title: "Spill Riwayat\nPenyakitmu",
+      description: "Isi personalisasi untuk rekomendasimu",
       items: _diseases,
       selectedList: _selectedDiseases,
     );
@@ -413,8 +521,8 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
 
   Widget _buildFourthPage() {
     return _buildPage(
-      title: "Punya Pantangan\natau Alergi?",
-      description: "Tambahkan jika kamu punya pantangan & alergi",
+      title: "Spill Pantangan\natau Alergimu",
+      description: "Kalo gapunya pantangan/alergi pilih Gaada",
       items: _allergies,
       selectedList: _selectedAllergies,
     );
@@ -427,9 +535,9 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "Semua Sudah Siap!\nMulailah Menjelajah",
+            "Semua udah Ready\nWaktumu Hidup Sehat!",
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 32, fontWeight: FontWeight.w600),
           ),
           SizedBox(height: 20),
           Text(
@@ -477,7 +585,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
             children: [
               Text(
                 description,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
               ),
             ],
           ),
@@ -503,9 +611,9 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: selectedList.contains(itemId) ? Color(0xFF1FC29D) : Colors.transparent, // Background transparan untuk item yang tidak terpilih
+                    color: selectedList.contains(itemId) ? Color(0xFF1FC29D) : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
-                    border: selectedList.contains(itemId) ? null : Border.all(color: Color(0xFFDFDFDF), width: 1.5), // Outline untuk item yang tidak terpilih
+                    border: selectedList.contains(itemId) ? null : Border.all(color: Color(0xFFDFDFDF), width: 1.5),
                   ),
                   child: Text(
                     itemName,
@@ -517,9 +625,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
               );
             }).toList(),
           ),
-          if ((_currentPage == 1 && _selectedInterests.isEmpty) ||
-              (_currentPage == 2 && _selectedFavorites.isEmpty) ||
-              (_currentPage == 3 && _selectedDiseases.isEmpty))
+          if (selectedList.isEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 20.0),
               child: Text(

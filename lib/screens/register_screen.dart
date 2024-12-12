@@ -22,23 +22,48 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscureTextConfirmPassword = true;
 
   Future<void> _register() async {
-    if (_formKey.currentState!.validate()) {
-      final response = await _apiService.register(
-        _nameController.text,
-        _emailController.text,
-        _passwordController.text,
-        _confirmPasswordController.text,
-      );
+    // Lakukan validasi manual di sini
+    if (_nameController.text.isEmpty) {
+      _showErrorDialog('Ketik Nama Lengkap Anda!');
+      return;
+    }
+    if (_emailController.text.isEmpty) {
+      _showErrorDialog('Ketik Email Anda!');
+      return;
+    }
+    if (_passwordController.text.isEmpty) {
+      _showErrorDialog('Ketik Kata Sandi Anda!');
+      return;
+    }
+    if (!_isValidPassword(_passwordController.text)) {
+      _showErrorDialog('Password harus mengandung kombinasi huruf dan angka minimal 8 karakter!');
+      return;
+    }
+    if (_confirmPasswordController.text.isEmpty) {
+      _showErrorDialog('Ketik Konfirmasi Kata Sandi Anda!');
+      return;
+    }
+    if (_confirmPasswordController.text != _passwordController.text) {
+      _showErrorDialog('Periksa Kembali, Kata Sandi Tidak cocok!');
+      return;
+    }
 
-      if (response.success) {
-        await _apiService.saveToken(response.data['token']);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => VerificationScreen()),
-        );
-      } else {
-        _showErrorDialog(response.message);
-      }
+    // Jika validasi berhasil, proses pendaftaran ke API
+    final response = await _apiService.register(
+      _nameController.text,
+      _emailController.text,
+      _passwordController.text,
+      _confirmPasswordController.text,
+    );
+
+    if (response.success) {
+      await _apiService.saveToken(response.data['token']);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => VerificationScreen()),
+      );
+    } else {
+      _showErrorDialog(response.message);
     }
   }
 
@@ -60,6 +85,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       },
     );
+  }
+
+  bool _isValidPassword(String password) {
+    // Regex untuk memeriksa kombinasi huruf dan angka minimal 8 karakter
+    final RegExp passwordRegex = RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$');
+    return passwordRegex.hasMatch(password);
   }
 
   @override
@@ -110,7 +141,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         children: [
                           SizedBox(height: 50),
                           Image.asset(
-                            'assets/images/Logo 1.png',
+                            'assets/images/Logos.png',
                             width: 250,
                           ),
                           SizedBox(height: 20),
@@ -213,12 +244,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ),
                             style: TextStyle(color: AppColors.darkGrey), // Warna teks abu-abu
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Ketik Nama Lengkap Anda!';
-                              }
-                              return null;
-                            },
                           ),
                           SizedBox(height: 10),
 
@@ -246,12 +271,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ),
                             style: TextStyle(color: AppColors.darkGrey), // Warna teks abu-abu
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Ketik Email Anda!';
-                              }
-                              return null;
-                            },
                           ),
                           SizedBox(height: 10),
 
@@ -291,12 +310,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             style: TextStyle(color: AppColors.darkGrey),
                             obscureText: _obscureTextPassword,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Ketik Kata Sandi Anda!';
-                              }
-                              return null;
-                            },
                           ),
                           SizedBox(height: 10),
 
@@ -336,15 +349,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             style: TextStyle(color: AppColors.darkGrey),
                             obscureText: _obscureTextConfirmPassword,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Ketik Kata Sandi Anda!';
-                              }
-                              if (value != _passwordController.text) {
-                                return 'Periksa Kembali, Kata Sandi Tidak cocok!';
-                              }
-                              return null;
-                            },
                           ),
                           SizedBox(height: 30),
 
@@ -371,29 +375,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                           // Button 'Sudah Punya Akun'
                           ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(builder: (context) => LoginScreen()),
-                              );
-                            },
-                            child: Text(
-                              'Aku Udah Punya Akun',
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
+                              onPressed: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                                );
+                              },
+                              child: Text(
+                                'Aku Udah Punya Akun',
+                                style: TextStyle(
+                                  color: AppColors.primary,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: AppColors.primary,
-                              minimumSize: Size(320, 50),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                side: BorderSide(color: AppColors.primary),
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: AppColors.primary,
+                                  minimumSize: Size(320, 50),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    side: BorderSide(color: AppColors.primary),
+                                  )
                               )
-                            )
                           ),
                         ],
                       ),

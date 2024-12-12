@@ -201,7 +201,7 @@ class _TambahJadwalMakanScreenState extends State<TambahJadwalMakanScreen> {
       'meal_hour': _selectedHour,
       'meal_minute': _selectedMinute,
       'meal_frequency': frequencyValue,
-      'toggle_value': 1, // Set toggle_value to 1 by default
+      'toggle_value': 1,
     };
 
     // Log the meal reminder data to check for null values
@@ -212,7 +212,7 @@ class _TambahJadwalMakanScreenState extends State<TambahJadwalMakanScreen> {
       final int id = await _apiService.saveMealReminder(mealReminder);
 
       // Menentukan waktu notifikasi
-      DateTime scheduledDate = DateTime.now().add(Duration(seconds: 1)); // Set the default time to 1 second later
+      DateTime scheduledDate = DateTime.now().add(Duration(seconds: 1));
       scheduledDate = scheduledDate.copyWith(hour: _selectedHour, minute: _selectedMinute, second: 0);
 
       // Menjadwalkan notifikasi berdasarkan frekuensi

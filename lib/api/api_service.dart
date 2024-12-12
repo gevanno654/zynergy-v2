@@ -36,6 +36,24 @@ class ApiService {
     return ApiResponse.fromJson(jsonDecode(response.body));
   }
 
+  Future<ApiResponse> verifyOTP(String otp, String email) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/verify-otp'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'otp': otp,
+          'email': email,
+        }),
+      );
+
+      final responseData = jsonDecode(response.body);
+      return ApiResponse.fromJson(responseData);
+    } catch (e) {
+      return ApiResponse(success: false, message: 'Failed to verify OTP', data: null);
+    }
+  }
+
   Future<ApiResponse> verifyEmail(String otp) async {
     try {
       final token = await getToken();
@@ -162,6 +180,31 @@ class ApiService {
     }
   }
 
+  Future<ApiResponse> sendResetCode(String email) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/forgot-password'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email}),
+    );
+
+    return ApiResponse.fromJson(jsonDecode(response.body));
+  }
+
+  Future<ApiResponse> resetPassword(String email, String otp, String password) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/reset-password'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': email,
+        'otp': otp,
+        'password': password,
+        'password_confirmation': password, // Pastikan ini sesuai dengan validasi di backend
+      }),
+    );
+
+    return ApiResponse.fromJson(jsonDecode(response.body));
+  }
+
   Future<int> getUserId() async {
     final userData = await getLocalUserData();
     if (userData != null && userData.containsKey('id')) {
@@ -216,6 +259,57 @@ class ApiService {
       return jsonDecode(userDataString);
     }
     return null;
+  }
+
+  Future<ApiResponse> changePassword(String currentPassword, String newPassword, String newPasswordConfirmation) async {
+    final token = await getToken();
+    if (token == null) {
+      return ApiResponse(success: false, message: 'Token not found', data: null);
+    }
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/change-password'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'current_password': currentPassword,
+        'new_password': newPassword,
+        'new_password_confirmation': newPasswordConfirmation,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return ApiResponse(success: true, message: 'Password changed successfully', data: null);
+    } else {
+      final errorMessage = jsonDecode(response.body)['message'];
+      return ApiResponse(success: false, message: errorMessage, data: null);
+    }
+  }
+
+  Future<ApiResponse> updateUserName(String newName) async {
+    final token = await getToken();
+    if (token == null) {
+      return ApiResponse(success: false, message: 'Token not found', data: null);
+    }
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/user/update-name'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'name': newName}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return ApiResponse(success: true, message: 'Name updated successfully', data: data);
+    } else {
+      final errorMessage = response.body;
+      return ApiResponse(success: false, message: errorMessage, data: null);
+    }
   }
 
   Future<ApiResponse> updateGender(String gender) async {

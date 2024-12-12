@@ -2,14 +2,24 @@ import 'package:flutter/material.dart';
 import 'new_password.dart';
 import '../core/config/theme/app_colors.dart';
 import '../core/config/strings/app_text.dart';
+import '../api/api_service.dart';
+import '../api/api_response.dart';
 
 class VerificationCodeForgetPassScreen extends StatefulWidget {
+  final String email; // Tambahkan parameter email
+
+  VerificationCodeForgetPassScreen({required this.email}); // Tambahkan parameter email ke konstruktor
+
   @override
   _VerificationCodeForgetPassScreenState createState() => _VerificationCodeForgetPassScreenState();
 }
 
 class _VerificationCodeForgetPassScreenState extends State<VerificationCodeForgetPassScreen> {
   final List<TextEditingController> _otpControllers = List.generate(5, (index) => TextEditingController());
+  final ApiService _apiService = ApiService(); // Inisialisasi ApiService
+
+  // Fungsi untuk menggabungkan nilai OTP dari semua controller
+  String get otp => _otpControllers.map((controller) => controller.text).join();
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +69,7 @@ class _VerificationCodeForgetPassScreenState extends State<VerificationCodeForge
                         children: [
                           SizedBox(height: 50),
                           Image.asset(
-                            'assets/images/Logo 1.png',
+                            'assets/images/Logos.png',
                             width: 250,
                           ),
                           SizedBox(height: 20),
@@ -184,10 +194,8 @@ class _VerificationCodeForgetPassScreenState extends State<VerificationCodeForge
                         SizedBox(height: 20),
                         ElevatedButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => NewPasswordScreen()),
-                            );
+                            // Panggil fungsi untuk verifikasi OTP
+                            _verifyOTP();
                           },
                           child: Text(
                             'Verifikasi',
@@ -237,5 +245,30 @@ class _VerificationCodeForgetPassScreenState extends State<VerificationCodeForge
         ),
       ),
     );
+  }
+
+  // Fungsi untuk verifikasi OTP
+  Future<void> _verifyOTP() async {
+    final otp = this.otp; // Ambil OTP dari controller
+    final email = widget.email; // Ambil email dari widget
+
+    // Panggil API untuk memverifikasi OTP
+    ApiResponse response = await _apiService.verifyOTP(otp, email);
+
+    if (response.success) {
+      // Jika OTP valid, navigasikan ke halaman NewPasswordScreen
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => NewPasswordScreen(email: email, otp: otp)),
+      );
+    } else {
+      // Jika OTP tidak valid, tampilkan pesan error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response.message ?? 'OTP tidak valid'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }

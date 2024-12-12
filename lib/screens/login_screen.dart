@@ -51,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _apiService = ApiService();
   final _storage = FlutterSecureStorage();
 
-  bool _isLoading = false; // State untuk menampilkan loading animation
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -434,6 +434,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             alignment: Alignment.centerRight,
                             child: TextButton(
                               onPressed: () {
+                                FocusScope.of(context).unfocus(); // Menghilangkan fokus dari inputText
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(builder: (context) => ForgetPasswordScreen()),
@@ -452,7 +453,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           //Button 'Masuk(Login)'
                           ElevatedButton(
-                            onPressed: _login,
+                            onPressed: () {
+                              FocusScope.of(context).unfocus();
+                              _login();
+                            },
                             child: Text(
                               LoginText.loginButton,
                               style: TextStyle(
@@ -474,6 +478,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           //Button 'Daftar'
                           ElevatedButton(
                             onPressed: () {
+                              FocusScope.of(context).unfocus(); // Menghilangkan fokus dari inputText
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(builder: (context) => RegisterScreen()),
@@ -512,6 +517,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           // Tombol 'Masuk dengan Google'
                           ElevatedButton(
                             onPressed: () {
+                              FocusScope.of(context).unfocus(); // Menghilangkan fokus dari inputText
                               signInWithGoogle();
                             },
                             child: Row(

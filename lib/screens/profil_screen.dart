@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../core/config/assets/app_vectors.dart';
 import '../core/config/theme/app_colors.dart';
 import '../api/api_service.dart';
@@ -8,6 +9,7 @@ import 'login_screen.dart';
 import 'ubah_jenis_kelamin.dart';
 import 'ubah_kata_sandi.dart';
 import 'ubah_nama_screen.dart';
+import 'personalization_screen.dart';
 
 class ProfilScreen extends StatefulWidget {
   @override
@@ -15,8 +17,8 @@ class ProfilScreen extends StatefulWidget {
 }
 
 class _ProfilScreen extends State<ProfilScreen> {
-  final ApiService _apiService = ApiService(); // Buat instance ApiService
-  final GoogleSignIn _googleSignIn = GoogleSignIn(); // Tambahkan ini
+  final ApiService _apiService = ApiService();
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
   Map<String, dynamic>? _userData;
 
   @override
@@ -47,18 +49,16 @@ class _ProfilScreen extends State<ProfilScreen> {
 
   Future<void> _logout(BuildContext context) async {
     try {
-      await _apiService.logout(); // Panggil metode logout dari ApiService
-      await _googleSignIn.signOut(); // Tambahkan ini untuk signOut dari Google
-      // Navigasi ke halaman login setelah logout selesai
-      if (context.mounted) { // Pastikan konteks masih valid
+      await _apiService.logout();
+      await _googleSignIn.signOut();
+      if (context.mounted) {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => LoginScreen()),
-              (route) => false, // Hapus semua rute sebelumnya
+              (route) => false,
         );
       }
     } catch (e) {
-      // Pastikan konteks masih valid sebelum menggunakan ScaffoldMessenger
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to logout: $e')),
@@ -70,7 +70,7 @@ class _ProfilScreen extends State<ProfilScreen> {
   Future<void> _showLogoutDialog(BuildContext context) async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // user must tap button!
+      barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
@@ -89,7 +89,6 @@ class _ProfilScreen extends State<ProfilScreen> {
             ),
           ),
           actions: <Widget>[
-            // Tombol "Batal"
             TextButton(
               child: const Text(
                 'Batal',
@@ -98,15 +97,15 @@ class _ProfilScreen extends State<ProfilScreen> {
                 ),
               ),
               onPressed: () {
-                Navigator.of(dialogContext).pop(); // Tutup dialog
+                Navigator.of(dialogContext).pop();
               },
               style: TextButton.styleFrom(
                 side: BorderSide(
-                  color: AppColors.primary, // Warna outline
-                  width: 1.0, // Ketebalan outline
+                  color: AppColors.primary,
+                  width: 1.0,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8), // Border radius untuk tombol "Batal"
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),
@@ -118,8 +117,8 @@ class _ProfilScreen extends State<ProfilScreen> {
                 ),
               ),
               onPressed: () async {
-                Navigator.of(dialogContext).pop(); // Tutup dialog terlebih dahulu
-                await _logout(context); // Gunakan konteks dari ProfilScreen
+                Navigator.of(dialogContext).pop();
+                await _logout(context);
               },
               style: TextButton.styleFrom(
                 backgroundColor: AppColors.danger,
@@ -143,11 +142,11 @@ class _ProfilScreen extends State<ProfilScreen> {
           height: double.infinity,
           decoration: const BoxDecoration(
             gradient: RadialGradient(
-              center: Alignment(0.7, -1), // near the top right
+              center: Alignment(0.7, -1),
               radius: 0.4,
               colors: [
-                Color(0xFF4AF5CE), // Teal gradient start
-                AppColors.primary, // Teal-blue gradient end
+                Color(0xFF4AF5CE),
+                AppColors.primary,
               ],
               stops: <double>[0.0, 1.0],
             ),
@@ -164,20 +163,16 @@ class _ProfilScreen extends State<ProfilScreen> {
                       backgroundColor: AppColors.secondary,
                       child: ClipOval(
                         child: SvgPicture.asset(
-                          AppVectors.iconUser, // Replace with your SVG path
-                          height:
-                          100, // Scale the SVG to fit within the CircleAvatar
+                          AppVectors.iconUser,
+                          height: 100,
                           width: 100,
-                          fit: BoxFit
-                              .cover, // Ensures the SVG scales proportionally
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-
-              // Main Content
               Expanded(
                 flex: 1,
                 child: Container(
@@ -190,187 +185,228 @@ class _ProfilScreen extends State<ProfilScreen> {
                     ),
                   ),
                   child: ListView(
-                    // crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Informasi Pribadi Section
                       const Text(
                         "Informasi Pribadi",
                         style: TextStyle(
                           fontSize: 16,
-                          // fontFamily: 'Geist',
                           fontWeight: FontWeight.w500,
                           color: Colors.black,
                         ),
                       ),
                       const SizedBox(height: 12),
-
                       Container(
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: AppColors.lightGrey, width: 1)),
-                          child: Column(
-                            children: [
-                              ListTile(
-                                contentPadding:
-                                const EdgeInsets.only(right: 16, left: 16, top: 16),
-                                title: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Nama Lengkap',
-                                      style: TextStyle(
-                                        color: AppColors.darkGrey,
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 14,
-                                      ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.lightGrey, width: 1),
+                        ),
+                        child: Column(
+                          children: [
+                            ListTile(
+                              contentPadding: const EdgeInsets.only(
+                                  right: 16, left: 16, top: 16),
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Nama Lengkap',
+                                    style: TextStyle(
+                                      color: AppColors.darkGrey,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      _userData?['name'] ?? 'Loading...',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
-                                        color: AppColors.darkGrey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                trailing: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      'Ubah',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: AppColors.darkGrey,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    SizedBox(width: 4),
-                                    Icon(Icons.chevron_right,
-                                        color: AppColors.darkGrey),
-                                  ],
-                                ),
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => UbahNamaScreen()));
-                                },
-                              ),
-                              ListTile(
-                                contentPadding:
-                                const EdgeInsets.only(right: 16, left: 16, top: 16),
-                                title: const Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Jenis Kelamin',
-                                      style: TextStyle(
-                                        color: AppColors.darkGrey,
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      'Perempuan',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: AppColors.darkGrey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                trailing: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      'Ubah',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: AppColors.darkGrey,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    SizedBox(width: 4),
-                                    Icon(Icons.chevron_right,
-                                        color: AppColors.darkGrey),
-                                  ],
-                                ),
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => UbahJenisKelamin()));
-                                },
-                              ),
-                              ListTile(
-                                contentPadding:
-                                const EdgeInsets.only(right: 16, left: 16, top: 16),
-                                title: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Email',
-                                      style: TextStyle(
-                                        color: AppColors.darkGrey,
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      _userData?['email'] ?? 'Loading...',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: AppColors.darkGrey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              ListTile(
-                                contentPadding: const EdgeInsets.only(
-                                    right: 16, left: 16, top: 16, bottom: 16),
-                                title: const Text(
-                                  'Kata Sandi',
-                                  style: TextStyle(
-                                    color: AppColors.darkGrey,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 14,
                                   ),
-                                ),
-                                trailing: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      'Ubah',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: AppColors.darkGrey,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _userData?['name'] ?? 'Loading...',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                      color: AppColors.darkGrey,
                                     ),
-                                    SizedBox(width: 4),
-                                    Icon(Icons.chevron_right,
-                                        color: AppColors.darkGrey),
-                                  ],
-                                ),
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => UbahKataSandi()));
-                                },
+                                  ),
+                                ],
                               ),
-                            ],
-                          )),
+                              trailing: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Ubah',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: AppColors.darkGrey,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  SizedBox(width: 4),
+                                  Icon(Icons.chevron_right, color: AppColors.darkGrey),
+                                ],
+                              ),
+                              onTap: () async {
+                                // Navigasi ke UbahNamaScreen
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => UbahNamaScreen()),
+                                );
+
+                                // Setelah kembali, ambil data pengguna terbaru
+                                await _fetchUserData();
+                              },
+                            ),
+                            ListTile(
+                              contentPadding: const EdgeInsets.only(right: 16, left: 16, top: 16),
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Jenis Kelamin',
+                                    style: TextStyle(
+                                      color: AppColors.darkGrey,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _userData?['gender'] == 'male' ? 'Laki-Laki' : 'Perempuan',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: AppColors.darkGrey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              trailing: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Ubah',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: AppColors.darkGrey,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  SizedBox(width: 4),
+                                  Icon(Icons.chevron_right, color: AppColors.darkGrey),
+                                ],
+                              ),
+                              onTap: () async {
+                                // Kirim data jenis kelamin yang baru ke ProfilScreen
+                                final newGender = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => UbahJenisKelamin()),
+                                );
+
+                                if (newGender != null) {
+                                  // Perbarui data pengguna secara lokal
+                                  setState(() {
+                                    _userData?['gender'] = newGender;
+                                  });
+                                }
+                              },
+                            ),
+                            ListTile(
+                              contentPadding: const EdgeInsets.only(right: 16, left: 16, top: 16),
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Edit Personalisasi',
+                                    style: TextStyle(
+                                      color: AppColors.darkGrey,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              trailing: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Ubah',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: AppColors.darkGrey,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  SizedBox(width: 4),
+                                  Icon(Icons.chevron_right, color: AppColors.darkGrey),
+                                ],
+                              ),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => PersonalizationScreen(fromProfil: true)),
+                                );
+                              },
+                            ),
+                            ListTile(
+                              contentPadding: const EdgeInsets.only(
+                                  right: 16, left: 16, top: 16),
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Email',
+                                    style: TextStyle(
+                                      color: AppColors.darkGrey,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _userData?['email'] ?? 'Loading...',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: AppColors.darkGrey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            ListTile(
+                              contentPadding: const EdgeInsets.only(
+                                  right: 16, left: 16, top: 16, bottom: 16),
+                              title: const Text(
+                                'Kata Sandi',
+                                style: TextStyle(
+                                  color: AppColors.darkGrey,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              trailing: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Ubah',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: AppColors.darkGrey,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  SizedBox(width: 4),
+                                  Icon(Icons.chevron_right, color: AppColors.darkGrey),
+                                ],
+                              ),
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => UbahKataSandi()));
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
                       SizedBox(height: 16),
-
-
-                      // Logout Button
                       ElevatedButton.icon(
                         onPressed: () => _showLogoutDialog(context),
                         icon: const Icon(Icons.logout, color: Colors.white),
@@ -390,9 +426,7 @@ class _ProfilScreen extends State<ProfilScreen> {
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 32),
-                      // Social Media Section
                       const Text(
                         'Dukung dan Ikuti Kami',
                         textAlign: TextAlign.center,
@@ -406,13 +440,9 @@ class _ProfilScreen extends State<ProfilScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _socialButton(AppVectors.iconInstagram),
+                          _socialButton(AppVectors.iconInstagram, 'https://www.instagram.com/zynergy.id/'),
                           const SizedBox(width: 12),
-                          _socialButton(AppVectors.iconFacebook),
-                          const SizedBox(width: 12),
-                          _socialButton(AppVectors.iconTwitter),
-                          const SizedBox(width: 12),
-                          _socialButton(AppVectors.iconGithub),
+                          _socialButton(AppVectors.iconGithub, 'https://github.com/yulia30359/finpro-msib-7-kelompok-2'),
                         ],
                       ),
                       SizedBox(height: 20),
@@ -427,17 +457,27 @@ class _ProfilScreen extends State<ProfilScreen> {
     );
   }
 
-  Widget _socialButton(String icon) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.lightGrey),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: SvgPicture.asset(
-        icon,
-        width: 24,
-        height: 24,
+  Widget _socialButton(String icon, String url) {
+    return GestureDetector(
+      onTap: () async {
+        final Uri uri = Uri.parse(url);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri);
+        } else {
+          throw 'Could not launch $url';
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.lightGrey),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: SvgPicture.asset(
+          icon,
+          width: 24,
+          height: 24,
+        ),
       ),
     );
   }

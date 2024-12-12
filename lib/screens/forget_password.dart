@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'verification_code_forget_pass.dart';
 import '../core/config/theme/app_colors.dart';
 import '../core/config/strings/app_text.dart';
+import '../api/api_service.dart';
+import 'login_screen.dart';
 
 class ForgetPasswordScreen extends StatefulWidget {
   @override
@@ -10,6 +12,32 @@ class ForgetPasswordScreen extends StatefulWidget {
 
 class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   final _emailController = TextEditingController();
+  final ApiService _apiService = ApiService(); // Inisialisasi ApiService
+
+  Future<void> _sendResetCode() async {
+    final email = _emailController.text;
+    final response = await _apiService.sendResetCode(email);
+
+    if (response.success) {
+      // Jika berhasil, arahkan ke layar verifikasi OTP
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => VerificationCodeForgetPassScreen(email: email)),
+      );
+    } else {
+      // Tampilkan pesan error jika gagal
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(response.message)),
+      );
+    }
+  }
+
+  void _goBackToLogin() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +87,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                         children: [
                           SizedBox(height: 50),
                           Image.asset(
-                            'assets/images/Logo 1.png',
+                            'assets/images/Logos.png',
                             width: 250,
                           ),
                           SizedBox(height: 20),
@@ -174,12 +202,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                         ),
                         SizedBox(height: 20),
                         ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => VerificationCodeForgetPassScreen()),
-                            );
-                          },
+                          onPressed: _sendResetCode, // Panggil fungsi _sendResetCode
                           child: Text(
                             'Dapatkan Kode OTP',
                             style: TextStyle(
@@ -193,6 +216,26 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                             minimumSize: Size(350, 50),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8.0),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: _goBackToLogin, // Fungsi untuk kembali ke login
+                          child: Text(
+                            'Aku Inget Kata Sandiku',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            minimumSize: Size(350, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                              side: BorderSide(color: AppColors.primary),
                             ),
                           ),
                         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 import 'tambah_jadwal_tidur.dart';
 import 'edit_jadwal_tidur.dart';
 import '../core/config/strings/app_text.dart';
@@ -370,26 +371,31 @@ class _PengingatTidurScreenState extends State<PengingatTidurScreen> {
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                       (context, index) {
-                    final reminder = _sleepReminders[index];
-                    return _buildScheduleCardWithEdit(
-                      [
-                        {'time': '${reminder['sleep_hour'].toString().padLeft(2, '0')}:${reminder['sleep_minute'].toString().padLeft(2, '0')}', 'description': 'Jam Tidur'},
-                        {'time': '${reminder['wake_hour'].toString().padLeft(2, '0')}:${reminder['wake_minute'].toString().padLeft(2, '0')}', 'description': 'Jam Bangun'},
-                      ],
-                      reminder['sleep_name'],
-                      reminder['toggle_state'] ?? false, // Provide default value
-                          (value) {
-                        setState(() {
-                          reminder['toggle_state'] = value;
-                          _updateToggleValueSleepReminder(reminder['id'], value);
-                        });
-                      },
-                          () {
-                        _navigateToEditSleepReminder(reminder);
-                      },
-                    );
+                    if (_sleepReminders.isEmpty) {
+                      // Tampilkan efek Shimmer jika data masih kosong
+                      return _buildShimmerLoading();
+                    } else {
+                      final reminder = _sleepReminders[index];
+                      return _buildScheduleCardWithEdit(
+                        [
+                          {'time': '${reminder['sleep_hour'].toString().padLeft(2, '0')}:${reminder['sleep_minute'].toString().padLeft(2, '0')}', 'description': 'Jam Tidur'},
+                          {'time': '${reminder['wake_hour'].toString().padLeft(2, '0')}:${reminder['wake_minute'].toString().padLeft(2, '0')}', 'description': 'Jam Bangun'},
+                        ],
+                        reminder['sleep_name'],
+                        reminder['toggle_state'] ?? false, // Provide default value
+                            (value) {
+                          setState(() {
+                            reminder['toggle_state'] = value;
+                            _updateToggleValueSleepReminder(reminder['id'], value);
+                          });
+                        },
+                            () {
+                          _navigateToEditSleepReminder(reminder);
+                        },
+                      );
+                    }
                   },
-                  childCount: _sleepReminders.length,
+                  childCount: _sleepReminders.isEmpty ? 3 : _sleepReminders.length, // Jumlah shimmer item
                 ),
               ),
             ),
@@ -439,6 +445,21 @@ class _PengingatTidurScreenState extends State<PengingatTidurScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        height: 120,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+      ),
     );
   }
 

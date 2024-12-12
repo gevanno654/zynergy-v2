@@ -54,61 +54,34 @@ class _EditJadwalTidurScreenState extends State<EditJadwalTidurScreen> {
   }
 
   void _showTimePicker(BuildContext context, bool isSleepTime) {
+    // Ambil waktu saat ini
+    final now = DateTime.now();
+    final currentHour = now.hour;
+    final currentMinute = now.minute;
+
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
         return Container(
-          height: 200,
-          child: Row(
-            children: [
-              Expanded(
-                child: CupertinoPicker(
-                  itemExtent: 32,
-                  onSelectedItemChanged: (int index) {
-                    setState(() {
-                      if (isSleepTime) {
-                        _selectedSleepHour = _hours[index];
-                        _calculateWakeTime();
-                      } else {
-                        _selectedWakeHour = _hours[index];
-                      }
-                    });
-                  },
-                  children: _hours.map((hour) {
-                    return Center(
-                      child: Text(
-                        hour.toString().padLeft(2, '0'),
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-              Text(':', style: TextStyle(fontSize: 18)),
-              Expanded(
-                child: CupertinoPicker(
-                  itemExtent: 32,
-                  onSelectedItemChanged: (int index) {
-                    setState(() {
-                      if (isSleepTime) {
-                        _selectedSleepMinute = _minutes[index];
-                        _calculateWakeTime();
-                      } else {
-                        _selectedWakeMinute = _minutes[index];
-                      }
-                    });
-                  },
-                  children: _minutes.map((minute) {
-                    return Center(
-                      child: Text(
-                        minute.toString().padLeft(2, '0'),
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
+          height: 250,
+          child: CupertinoTimerPicker(
+            mode: CupertinoTimerPickerMode.hm,
+            initialTimerDuration: Duration(
+              hours: isSleepTime ? _selectedSleepHour : _selectedWakeHour,
+              minutes: isSleepTime ? _selectedSleepMinute : _selectedWakeMinute,
+            ),
+            onTimerDurationChanged: (Duration newDuration) {
+              setState(() {
+                if (isSleepTime) {
+                  _selectedSleepHour = newDuration.inHours;
+                  _selectedSleepMinute = newDuration.inMinutes % 60;
+                  _calculateWakeTime();
+                } else {
+                  _selectedWakeHour = newDuration.inHours;
+                  _selectedWakeMinute = newDuration.inMinutes % 60;
+                }
+              });
+            },
           ),
         );
       },

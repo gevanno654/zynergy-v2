@@ -502,17 +502,6 @@ class _BerandaContentScreenState extends State<BerandaContentScreen> {
     }
   }
 
-  // Fungsi untuk mengambil artikel dari API
-  Future<void> _loadArticles() async {
-    try {
-      suggestedArticles = await ApiService().getSuggestedArticles();
-      print("Articles fetched successfully");
-      setState(() {});
-    } catch (e) {
-      print("Error fetching articles: $e");
-    }
-  }
-
   void _showInfoDialog(BuildContext context, String content) {
     showDialog(
       context: context,
@@ -561,6 +550,21 @@ class _BerandaContentScreenState extends State<BerandaContentScreen> {
     );
   }
 
+  // Fungsi untuk mengambil artikel dari API
+  Future<void> _loadArticles() async {
+    try {
+      suggestedArticles = await ApiService().getSuggestedArticles();
+      // Acak urutan artikel
+      suggestedArticles.shuffle();
+      // Batasi jumlah artikel menjadi 3
+      suggestedArticles = suggestedArticles.take(3).toList();
+      print("Articles fetched successfully");
+      setState(() {});
+    } catch (e) {
+      print("Error fetching articles: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     String displayName = _userName.split(' ')[0];
@@ -601,7 +605,7 @@ class _BerandaContentScreenState extends State<BerandaContentScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Hai, $displayName",
+                      "Hallo, $displayName",
                       style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
                     ),
                   ],

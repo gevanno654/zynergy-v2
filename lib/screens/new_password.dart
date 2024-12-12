@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import '../core/config/theme/app_colors.dart';
 import '../core/config/strings/app_text.dart';
+import '../api/api_service.dart';
+import 'login_screen.dart'; // Pastikan path ini benar
 
 class NewPasswordScreen extends StatefulWidget {
+  final String email;
+  final String otp;
+
+  NewPasswordScreen({required this.email, required this.otp});
+
   @override
   _NewPasswordScreenState createState() => _NewPasswordScreenState();
 }
@@ -11,6 +18,7 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _obscureText = true;
+  final ApiService _apiService = ApiService(); // Inisialisasi ApiService
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +68,7 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                         children: [
                           SizedBox(height: 50),
                           Image.asset(
-                            'assets/images/Logo 1.png',
+                            'assets/images/Logos.png',
                             width: 250,
                           ),
                           SizedBox(height: 20),
@@ -227,6 +235,7 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                         ElevatedButton(
                           onPressed: () {
                             // Tambahkan logika untuk mengubah kata sandi di sini
+                            _resetPassword();
                           },
                           child: Text(
                             'Ubah Kata Sandi',
@@ -254,5 +263,35 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
         ),
       ),
     );
+  }
+
+  // Fungsi untuk mereset password
+  Future<void> _resetPassword() async {
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Kata sandi tidak cocok')),
+      );
+      return;
+    }
+
+    // Panggil API untuk mereset password
+    final response = await _apiService.resetPassword(widget.email, widget.otp, password);
+
+    if (response.success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Kata sandi berhasil direset')),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder:(context) => LoginScreen()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(response.message)),
+      );
+    }
   }
 }

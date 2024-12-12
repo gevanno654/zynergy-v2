@@ -49,47 +49,19 @@ class _EditJadwalMakanScreenState extends State<EditJadwalMakanScreen> {
       context: context,
       builder: (BuildContext context) {
         return Container(
-          height: 200,
-          child: Row(
-            children: [
-              Expanded(
-                child: CupertinoPicker(
-                  itemExtent: 32,
-                  onSelectedItemChanged: (int index) {
-                    setState(() {
-                      _selectedHour = _hours[index];
-                    });
-                  },
-                  children: _hours.map((hour) {
-                    return Center(
-                      child: Text(
-                        hour.toString().padLeft(2, '0'),
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-              Text(':', style: TextStyle(fontSize: 18)),
-              Expanded(
-                child: CupertinoPicker(
-                  itemExtent: 32,
-                  onSelectedItemChanged: (int index) {
-                    setState(() {
-                      _selectedMinute = _minutes[index];
-                    });
-                  },
-                  children: _minutes.map((minute) {
-                    return Center(
-                      child: Text(
-                        minute.toString().padLeft(2, '0'),
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
+          height: 250,
+          child: CupertinoTimerPicker(
+            mode: CupertinoTimerPickerMode.hm,
+            initialTimerDuration: Duration(
+              hours: _selectedHour,
+              minutes: _selectedMinute,
+            ),
+            onTimerDurationChanged: (Duration newDuration) {
+              setState(() {
+                _selectedHour = newDuration.inHours;
+                _selectedMinute = newDuration.inMinutes % 60;
+              });
+            },
           ),
         );
       },

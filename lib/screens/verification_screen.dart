@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Import untuk RawKeyboardListener
 import '../core/config/theme/app_colors.dart';
 import '../core/config/strings/app_text.dart';
 import '../api/api_service.dart'; // Import ApiService
@@ -12,7 +13,33 @@ class VerificationScreen extends StatefulWidget {
 
 class _VerificationScreenState extends State<VerificationScreen> {
   final List<TextEditingController> _otpControllers = List.generate(5, (_) => TextEditingController());
+  final List<FocusNode> _focusNodes = List.generate(5, (_) => FocusNode());
   final _apiService = ApiService();
+
+  @override
+  void initState() {
+    super.initState();
+    // Menambahkan listener untuk setiap controller
+    for (var i = 0; i < _otpControllers.length; i++) {
+      _otpControllers[i].addListener(() {
+        // Jika kolom kosong dan bukan kolom pertama, pindahkan fokus ke kolom sebelumnya
+        if (_otpControllers[i].text.isEmpty && i > 0) {
+          FocusScope.of(context).requestFocus(_focusNodes[i - 1]);
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    for (var controller in _otpControllers) {
+      controller.dispose();
+    }
+    for (var focusNode in _focusNodes) {
+      focusNode.dispose();
+    }
+    super.dispose();
+  }
 
   Future<void> _verifyOTP() async {
     String otp = _otpControllers.map((controller) => controller.text).join('');
@@ -138,7 +165,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                         children: [
                           SizedBox(height: 50),
                           Image.asset(
-                            'assets/images/Logo 1.png',
+                            'assets/images/Logos.png',
                             width: 250,
                           ),
                           SizedBox(height: 20),
@@ -230,27 +257,50 @@ class _VerificationScreenState extends State<VerificationScreen> {
                             return SizedBox(
                               width: 50,
                               height: 50,
-                              child: TextField(
-                                controller: _otpControllers[index],
-                                keyboardType: TextInputType.number,
-                                maxLength: 1,
-                                textAlign: TextAlign.center,
-                                decoration: InputDecoration(
-                                  counterText: '',
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: AppColors.primary),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: AppColors.primary),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                ),
-                                onChanged: (value) {
-                                  if (value.length == 1 && index < 4) {
-                                    FocusScope.of(context).nextFocus();
+                              child: RawKeyboardListener(
+                                focusNode: FocusNode(),
+                                onKey: (event) {
+                                  // Deteksi backspace
+                                  if (event is RawKeyDownEvent &&
+                                      event.logicalKey == LogicalKeyboardKey.backspace &&
+                                      _otpControllers[index].text.isEmpty &&
+                                      index > 0) {
+                                    FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
                                   }
                                 },
+                                child: TextField(
+                                  controller: _otpControllers[index],
+                                  focusNode: _focusNodes[index],
+                                  keyboardType: TextInputType.number,
+                                  maxLength: 1,
+                                  textAlign: TextAlign.center,
+                                  decoration: InputDecoration(
+                                    counterText: '',
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: AppColors.primary),
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: AppColors.primary),
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                  ),
+                                  onChanged: (value) {
+                                    // Pindahkan fokus ke kolom berikutnya jika input valid dan bukan kolom terakhir
+                                    if (value.isNotEmpty && index < 4) {
+                                      _otpControllers[index].text = value;
+                                      FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
+                                    } else if (value.isEmpty && index > 0) {
+                                      // Jika kolom dikosongkan, pindahkan fokus ke kolom sebelumnya
+                                      FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
+                                    }
+                                  },
+                                  onSubmitted: (value) {
+                                    if (value.isNotEmpty && index < 4) {
+                                      FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
+                                    }
+                                  },
+                                ),
                               ),
                             );
                           }),

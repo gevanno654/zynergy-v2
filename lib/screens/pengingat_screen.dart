@@ -3,8 +3,8 @@ import 'pengingat_makan.dart';
 import 'pengingat_tidur.dart';
 import 'pengingat_olahraga.dart';
 import 'pengingat_cek_kesehatan.dart';
-import '../core/config/theme/app_colors.dart'; // Import app_colors.dart
-import '../core/config/strings/app_text.dart'; // Import app_text.dart
+import '../core/config/theme/app_colors.dart';
+import '../core/config/strings/app_text.dart';
 
 class PengingatScreen extends StatelessWidget {
   @override

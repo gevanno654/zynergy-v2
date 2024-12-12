@@ -10,6 +10,7 @@ import '../core/config/theme/app_colors.dart';
 import '../core/config/assets/app_vectors.dart';
 import '../api/api_service.dart';
 import '../api/notification_service.dart';
+import 'package:shimmer/shimmer.dart';
 
 class PengingatMakanScreen extends StatefulWidget {
   @override
@@ -388,7 +389,7 @@ class _PengingatMakanScreenState extends State<PengingatMakanScreen> {
                       });
                     },
                   ),
-                  const SizedBox(height:20,)
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -407,34 +408,41 @@ class _PengingatMakanScreenState extends State<PengingatMakanScreen> {
                     ),
                   ),
                 ),
-                SliverList.builder(
-                  itemCount: _specialSchedules.length,
-                  itemBuilder: (context, index) {
-                    final schedule = _specialSchedules[index];
-                    return _buildScheduleCardWithEdit(
-                      schedule['meal_name'],
-                      '${schedule['meal_hour']}:${schedule['meal_minute']}',
-                      schedule['meal_frequency'] == 1 ? 'Harian' : 'Sekali',
-                      schedule['toggle_value'] == 1, // Tambahkan ini
-                          (value) {
-                        setState(() {
-                          schedule['toggle_value'] = value ? 1 : 0;
-                          _updateToggleValue(schedule['id'], schedule['toggle_value'], schedule);
-                        });
-                      },
-                          () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => EditJadwalMakanScreen(mealSchedule: schedule)),
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                      if (_specialSchedules.isEmpty) {
+                        // Tampilkan efek Shimmer jika data masih kosong
+                        return _buildShimmerLoading();
+                      } else {
+                        final schedule = _specialSchedules[index];
+                        return _buildScheduleCardWithEdit(
+                          schedule['meal_name'],
+                          '${schedule['meal_hour']}:${schedule['meal_minute']}',
+                          schedule['meal_frequency'] == 1 ? 'Harian' : 'Sekali',
+                          schedule['toggle_value'] == 1, // Tambahkan ini
+                              (value) {
+                            setState(() {
+                              schedule['toggle_value'] = value ? 1 : 0;
+                              _updateToggleValue(schedule['id'], schedule['toggle_value'], schedule);
+                            });
+                          },
+                              () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => EditJadwalMakanScreen(mealSchedule: schedule)),
+                            );
+                          },
+                          schedule['id'],
+                          schedule,
                         );
-                      },
-                      schedule['id'],
-                      schedule,
-                    );
-                  },
-                )
+                      }
+                    },
+                    childCount: _specialSchedules.isEmpty ? 3 : _specialSchedules.length, // Jumlah shimmer item
+                  ),
+                ),
               ]),
-            )
+            ),
           ],
         ),
       ),
@@ -488,6 +496,21 @@ class _PengingatMakanScreenState extends State<PengingatMakanScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        height: 70,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+      ),
     );
   }
 
