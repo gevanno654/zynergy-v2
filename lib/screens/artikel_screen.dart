@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart'; // Import Cupertino library
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/svg.dart';
 import '../core/config/assets/app_vectors.dart';
 import '../core/config/theme/app_colors.dart';
@@ -40,15 +40,11 @@ class _ArtikelScreenState extends State<ArtikelScreen> {
   }
 
   Future<void> _fetchArticles() async {
-    try {
-      final generalArticles = await _apiService.getGeneralArticles();
-      setState(() {
-        _generalArticles = generalArticles;
-        _filteredArticles = _sortArticles(_generalArticles, _filterOption);
-      });
-    } catch (e) {
-      print('Error fetching articles: $e');
-    }
+    final generalArticles = await _apiService.getGeneralArticles();
+    setState(() {
+      _generalArticles = generalArticles;
+      _filteredArticles = _sortArticles(_generalArticles, _filterOption);
+    });
   }
 
   void _filterArticles(String query) {
@@ -159,6 +155,28 @@ class _ArtikelScreenState extends State<ArtikelScreen> {
                 ],
               ),
               actions: [
+                // Tombol Batal
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Tutup dialog tanpa menerapkan perubahan
+                  },
+                  child: Text(
+                    'Batal',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.danger, // Warna teks sesuai dengan tema
+                    ),
+                  ),
+                  style: TextButton.styleFrom(
+                    side: BorderSide(
+                      color: AppColors.danger,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+                // Tombol Terapkan
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
@@ -171,7 +189,7 @@ class _ArtikelScreenState extends State<ArtikelScreen> {
                   child: Text(
                     'Terapkan',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       color: Colors.white,
                     ),
                   ),
@@ -406,7 +424,7 @@ class _ArtikelScreenState extends State<ArtikelScreen> {
                             child: Text(
                               ButtonBerandaText.selengkapnya,
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.white,
                               ),

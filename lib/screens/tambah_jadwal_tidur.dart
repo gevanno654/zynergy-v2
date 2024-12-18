@@ -107,8 +107,8 @@ class _TambahJadwalTidurScreenState extends State<TambahJadwalTidurScreen> {
                 child: Container(
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: AppColors.primary, // Warna outline
-                      width: 1.0, // Ketebalan outline
+                      color: AppColors.primary,
+                      width: 1.0,
                     ),
                     borderRadius: BorderRadius.circular(8.0), // Border radius
                   ),
@@ -142,8 +142,8 @@ class _TambahJadwalTidurScreenState extends State<TambahJadwalTidurScreen> {
                 child: Container(
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: AppColors.primary, // Warna outline
-                      width: 1.0, // Ketebalan outline
+                      color: AppColors.primary,
+                      width: 1.0,
                     ),
                     borderRadius: BorderRadius.circular(8.0), // Border radius
                   ),
@@ -197,7 +197,6 @@ class _TambahJadwalTidurScreenState extends State<TambahJadwalTidurScreen> {
   Future<void> _saveSleepReminder() async {
     // Check if the sleep schedule name is empty
     if (_namaJadwalController.text.isEmpty) {
-      // Show error dialog
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -218,7 +217,6 @@ class _TambahJadwalTidurScreenState extends State<TambahJadwalTidurScreen> {
       return; // Exit the function early
     }
 
-    try {
       final apiService = ApiService();
       final sleepFrequency = _selectedFrequency == 'Sekali' ? 0 : 1;
 
@@ -268,7 +266,7 @@ class _TambahJadwalTidurScreenState extends State<TambahJadwalTidurScreen> {
 
         final NotificationService notificationService = NotificationService();
 
-        print('Scheduling sleep notification: id=$id, frequency=$sleepFrequency');
+        // print('Scheduling sleep notification: id=$id, frequency=$sleepFrequency');
         notificationService.scheduleNotification(
           id, // Gunakan id sebagai notification_id
           'Pengingat Tidur',
@@ -277,7 +275,7 @@ class _TambahJadwalTidurScreenState extends State<TambahJadwalTidurScreen> {
           sleepFrequency,
         );
 
-        print('Scheduling wake notification: id=$id, frequency=$sleepFrequency');
+        // print('Scheduling wake notification: id=$id, frequency=$sleepFrequency');
         notificationService.scheduleNotificationWithCustomSound(
           id + 1, // Gunakan id + 1 sebagai notification_id untuk alarm bangun
           'Pengingat Bangun',
@@ -290,12 +288,6 @@ class _TambahJadwalTidurScreenState extends State<TambahJadwalTidurScreen> {
       } else {
         throw Exception(response.message);
       }
-    } catch (e) {
-      print('Error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal menyimpan jadwal tidur')),
-      );
-    }
   }
 
   @override
@@ -306,13 +298,13 @@ class _TambahJadwalTidurScreenState extends State<TambahJadwalTidurScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.black),
+          icon: Icon(Icons.chevron_left_rounded, color: AppColors.darkGrey),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Tambah Jadwal Tidur',
           style: TextStyle(
-            color: AppColors.black,
+            color: AppColors.darkGrey,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -334,10 +326,20 @@ class _TambahJadwalTidurScreenState extends State<TambahJadwalTidurScreen> {
                       controller: _namaJadwalController,
                       decoration: InputDecoration(
                         labelText: TambahJadwalTidurText.namaJadwalLabel,
-                        border: OutlineInputBorder(
+                        labelStyle: TextStyle(
+                          color: AppColors.darkGrey,
+                        ),
+                        focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
                           borderSide: BorderSide(
-                            color: AppColors.lightGrey,
+                            color: AppColors.grey,
+                            width: 1.0,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: BorderSide(
+                            color: AppColors.grey,
                             width: 1.0,
                           ),
                         ),
@@ -362,7 +364,7 @@ class _TambahJadwalTidurScreenState extends State<TambahJadwalTidurScreen> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8.0),
                           border: Border.all(
-                            color: AppColors.lightGrey,
+                            color: AppColors.grey,
                             width: 1.0,
                           ),
                         ),
@@ -380,6 +382,11 @@ class _TambahJadwalTidurScreenState extends State<TambahJadwalTidurScreen> {
                     SizedBox(height: 5),
                     Text(
                       PengingatDetailText.infoPilihWaktu,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.darkGrey,
+                      ),
                     ),
                     SizedBox(height: 20),
                     Text(
@@ -400,7 +407,7 @@ class _TambahJadwalTidurScreenState extends State<TambahJadwalTidurScreen> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8.0),
                           border: Border.all(
-                            color: AppColors.lightGrey,
+                            color: AppColors.grey,
                             width: 1.0,
                           ),
                         ),
@@ -418,6 +425,11 @@ class _TambahJadwalTidurScreenState extends State<TambahJadwalTidurScreen> {
                     SizedBox(height: 5),
                     Text(
                       PengingatDetailText.infoPilihWaktu,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.darkGrey,
+                      ),
                     ),
                     SizedBox(height: 20),
                     Card(
@@ -458,6 +470,9 @@ class _TambahJadwalTidurScreenState extends State<TambahJadwalTidurScreen> {
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16.0),
+                                      ),
                                       content: Text(
                                         'Mengaktifkan mode ini akan otomatis membuat alarm bangun 8 jam dari jadwal alarm tidur dan menonaktifkan alarm bangun yang telah diatur.',
                                         style: TextStyle(
@@ -477,8 +492,12 @@ class _TambahJadwalTidurScreenState extends State<TambahJadwalTidurScreen> {
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
-                                          style: TextButton.styleFrom(
+                                          style: ElevatedButton.styleFrom(
                                             backgroundColor: AppColors.primary,
+                                            foregroundColor: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(8.0),
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -499,7 +518,10 @@ class _TambahJadwalTidurScreenState extends State<TambahJadwalTidurScreen> {
                                     }
                                   });
                                 },
-                                activeColor: AppColors.lightGrey,
+                                activeTrackColor: Colors.white,
+                                inactiveTrackColor: AppColors.lightGrey,
+                                thumbColor: AppColors.primary,
+                                inactiveThumbColor: Colors.white,
                               ),
                             ),
                           ],
@@ -511,9 +533,9 @@ class _TambahJadwalTidurScreenState extends State<TambahJadwalTidurScreen> {
                       color: Colors.white,
                       elevation: 0.0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.0),
+                        borderRadius: BorderRadius.circular(8.0),
                         side: BorderSide(
-                          color: AppColors.lightGrey,
+                          color: AppColors.grey,
                           width: 1.0,
                         ),
                       ),

@@ -46,13 +46,21 @@ class _UbahKataSandiState extends State<UbahKataSandi> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.chevron_left), // Menggunakan chevron left
+          onPressed: () {
+            Navigator.pop(context); // Fungsi untuk kembali ke halaman sebelumnya
+          },
+        ),
         title: const Text(
           'Ubah Kata Sandi',
           style: TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 16,
-              color: AppColors.black),
+            fontWeight: FontWeight.w500,
+            fontSize: 16,
+            color: AppColors.black,
+          ),
         ),
+        centerTitle: true,
       ),
       body: SafeArea(
         child: Container(
@@ -65,9 +73,10 @@ class _UbahKataSandiState extends State<UbahKataSandi> {
                 const Text(
                   'Buat Kata Sandi Baru',
                   style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16,
-                      color: AppColors.black),
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                    color: AppColors.black,
+                  ),
                 ),
                 const SizedBox(
                   height: 12,
@@ -77,7 +86,7 @@ class _UbahKataSandiState extends State<UbahKataSandi> {
                   decoration: InputDecoration(
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscureCurrentPassword ? Icons.visibility : Icons.visibility_off,
+                        _obscureCurrentPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
                         color: AppColors.darkGrey,
                       ),
                       onPressed: () {
@@ -87,7 +96,10 @@ class _UbahKataSandiState extends State<UbahKataSandi> {
                       },
                     ),
                     focusColor: AppColors.darkGrey,
-                    labelText: 'Kata Sandi Saat Ini',
+                    hintText: 'Kata Sandi Saat Ini',
+                    hintStyle: TextStyle(
+                      color: AppColors.grey,
+                    ),
                     border: OutlineInputBorder(
                       borderSide: const BorderSide(color: AppColors.darkGrey),
                       borderRadius: BorderRadius.circular(8),
@@ -113,7 +125,7 @@ class _UbahKataSandiState extends State<UbahKataSandi> {
                   decoration: InputDecoration(
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscureNewPassword ? Icons.visibility : Icons.visibility_off,
+                        _obscureNewPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
                         color: AppColors.darkGrey,
                       ),
                       onPressed: () {
@@ -123,7 +135,10 @@ class _UbahKataSandiState extends State<UbahKataSandi> {
                       },
                     ),
                     focusColor: AppColors.darkGrey,
-                    labelText: 'Kata Sandi Baru',
+                    hintText: 'Kata Sandi Baru',
+                    hintStyle: TextStyle(
+                      color: AppColors.grey,
+                    ),
                     border: OutlineInputBorder(
                       borderSide: const BorderSide(color: AppColors.darkGrey),
                       borderRadius: BorderRadius.circular(8),
@@ -149,7 +164,7 @@ class _UbahKataSandiState extends State<UbahKataSandi> {
                   decoration: InputDecoration(
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscureNewPasswordConfirmation ? Icons.visibility : Icons.visibility_off,
+                        _obscureNewPasswordConfirmation ? Icons.visibility_outlined : Icons.visibility_off_outlined,
                         color: AppColors.darkGrey,
                       ),
                       onPressed: () {
@@ -159,7 +174,10 @@ class _UbahKataSandiState extends State<UbahKataSandi> {
                       },
                     ),
                     focusColor: AppColors.darkGrey,
-                    labelText: 'Konfirmasi Kata Sandi Baru',
+                    hintText: 'Konfirmasi Kata Sandi Baru',
+                    hintStyle: TextStyle(
+                      color: AppColors.grey,
+                    ),
                     border: OutlineInputBorder(
                       borderSide: const BorderSide(color: AppColors.darkGrey),
                       borderRadius: BorderRadius.circular(8),
@@ -183,30 +201,33 @@ class _UbahKataSandiState extends State<UbahKataSandi> {
                 const SizedBox(
                   height: 24,
                 ),
-                Container(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _changePassword,
-                    child: const Text(
-                      'Save',
-                      style: TextStyle(
-                        color: AppColors.secondary,
-                        fontSize: 16,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 16, horizontal: 12),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
         ),
       ),
+      persistentFooterButtons: [
+        Container(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: _changePassword,
+            child: const Text(
+              'Simpan',
+              style: TextStyle(
+                color: AppColors.secondary,
+                fontSize: 16,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)
+              ),
+              backgroundColor: AppColors.primary,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

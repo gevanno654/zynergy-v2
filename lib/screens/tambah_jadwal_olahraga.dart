@@ -85,10 +85,10 @@ class _TambahJadwalOlahragaScreenState extends State<TambahJadwalOlahragaScreen>
                 child: Container(
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: AppColors.primary, // Warna outline
-                      width: 1.0, // Ketebalan outline
+                      color: AppColors.primary,
+                      width: 1.0,
                     ),
-                    borderRadius: BorderRadius.circular(8.0), // Border radius
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
                   padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
                   child: Row(
@@ -173,9 +173,7 @@ class _TambahJadwalOlahragaScreenState extends State<TambahJadwalOlahragaScreen>
   }
 
   Future<void> _saveLightActivityReminder() async {
-    // Check if the activity name is empty
     if (_namaJadwalController.text.isEmpty) {
-      // Show error dialog
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -193,7 +191,7 @@ class _TambahJadwalOlahragaScreenState extends State<TambahJadwalOlahragaScreen>
           );
         },
       );
-      return; // Exit the function early
+      return;
     }
 
     int frequencyValue = _selectedFrequency == 'Sekali' ? 0 : 1;
@@ -203,49 +201,27 @@ class _TambahJadwalOlahragaScreenState extends State<TambahJadwalOlahragaScreen>
       'activity_hour': _selectedHour,
       'activity_minute': _selectedMinute,
       'activity_frequency': frequencyValue,
-      'toggle_value': 1, // Set toggle_value to 1 by default
+      'toggle_value': 1,
     };
 
-    try {
-      // Menyimpan pengingat ke database
-      final ApiResponse response = await _apiService.saveLightActivityReminder(lightActivityReminder);
+    final ApiResponse response = await _apiService.saveLightActivityReminder(lightActivityReminder);
 
-      if (response.success) {
-        // Menentukan waktu notifikasi
-        DateTime scheduledDate = DateTime.now().add(Duration(seconds: 1)); // Set the default time to 1 second later
-        scheduledDate = scheduledDate.copyWith(hour: _selectedHour, minute: _selectedMinute, second: 0);
-
-        // Menjadwalkan notifikasi berdasarkan frekuensi
-        await NotificationService().scheduleNotification(
-          response.data['id'], // Gunakan id sebagai notification_id
-          'Pengingat Olahraga',
-          'Saatnya olahraga: ${_namaJadwalController.text}',
-          scheduledDate,
-          _selectedFrequency,  // Meneruskan nilai frekuensi
-        );
-
-        // Save notification_id to SharedPreferences
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setInt('notification_id_${response.data['id']}', response.data['id']); // Simpan id sebagai notification_id
-
-        // Kirim data kembali ke pengingat_olahraga.dart
-        Navigator.of(context).pop(true);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error saving light activity reminder: ${response.message}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } catch (e) {
-      print("Error saving light activity reminder: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error saving light activity reminder: $e'),
-          backgroundColor: Colors.red,
-        ),
+    if (response.success) {
+      DateTime scheduledDate = DateTime.now().copyWith(
+        hour: _selectedHour,
+        minute: _selectedMinute,
+        second: 0,
       );
+
+      await _notificationService.scheduleNotification(
+        response.data['id'],
+        'Pengingat Olahraga',
+        'Saatnya olahraga: ${_namaJadwalController.text}',
+        scheduledDate,
+        _selectedFrequency,
+      );
+
+      Navigator.of(context).pop(true); // Kirimkan nilai true jika berhasil
     }
   }
 
@@ -257,13 +233,13 @@ class _TambahJadwalOlahragaScreenState extends State<TambahJadwalOlahragaScreen>
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.black), // Menggunakan AppColors.black
+          icon: Icon(Icons.chevron_left_rounded, color: AppColors.darkGrey),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Tambah Jadwal Olahraga',
           style: TextStyle(
-            color: AppColors.black, // Menggunakan AppColors.black
+            color: AppColors.darkGrey,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -285,10 +261,20 @@ class _TambahJadwalOlahragaScreenState extends State<TambahJadwalOlahragaScreen>
                       controller: _namaJadwalController,
                       decoration: InputDecoration(
                         labelText: TambahJadwalOlahragaText.namaJadwalLabel,
-                        border: OutlineInputBorder(
+                        labelStyle: TextStyle(
+                          color: AppColors.darkGrey,
+                        ),
+                        focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
                           borderSide: BorderSide(
-                            color: AppColors.lightGrey, // Menggunakan AppColors.lightGrey
+                            color: AppColors.grey,
+                            width: 1.0,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: BorderSide(
+                            color: AppColors.grey,
                             width: 1.0,
                           ),
                         ),
@@ -297,6 +283,11 @@ class _TambahJadwalOlahragaScreenState extends State<TambahJadwalOlahragaScreen>
                     SizedBox(height: 30),
                     Text(
                       PengingatDetailText.infoPilihWaktu,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.darkGrey,
+                      ),
                     ),
                     SizedBox(height: 10),
                     GestureDetector(
@@ -309,7 +300,7 @@ class _TambahJadwalOlahragaScreenState extends State<TambahJadwalOlahragaScreen>
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8.0),
                           border: Border.all(
-                            color: AppColors.lightGrey, // Menggunakan AppColors.lightGrey
+                            color: AppColors.grey,
                             width: 1.0,
                           ),
                         ),
@@ -319,6 +310,7 @@ class _TambahJadwalOlahragaScreenState extends State<TambahJadwalOlahragaScreen>
                             style: TextStyle(
                               fontSize: 26,
                               fontWeight: FontWeight.w500,
+                              color: AppColors.darkGrey,
                             ),
                           ),
                         ),
@@ -329,9 +321,9 @@ class _TambahJadwalOlahragaScreenState extends State<TambahJadwalOlahragaScreen>
                       color: Colors.white,
                       elevation: 0.0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.0),
+                        borderRadius: BorderRadius.circular(8.0),
                         side: BorderSide(
-                          color: AppColors.lightGrey, // Menggunakan AppColors.lightGrey
+                          color: AppColors.grey,
                           width: 1.0,
                         ),
                       ),
@@ -369,7 +361,7 @@ class _TambahJadwalOlahragaScreenState extends State<TambahJadwalOlahragaScreen>
                                     Icon(
                                       Icons.chevron_right,
                                       size: 18,
-                                      color: AppColors.darkGrey, // Menggunakan AppColors.darkGrey
+                                      color: AppColors.darkGrey,
                                     ),
                                   ],
                                 ),
@@ -391,7 +383,7 @@ class _TambahJadwalOlahragaScreenState extends State<TambahJadwalOlahragaScreen>
               child: ElevatedButton(
                 onPressed: _saveLightActivityReminder,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary, // Menggunakan AppColors.primary
+                  backgroundColor: AppColors.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.0),
                   ),

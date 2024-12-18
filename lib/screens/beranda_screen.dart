@@ -61,25 +61,17 @@ class _BerandaScreenState extends State<BerandaScreen> {
 
   // Fungsi untuk mengambil data dari API
   Future<void> _loadSuggestions() async {
-    try {
       suggestMenus = await _apiService.getSuggestMenus();
       suggestAvoids = await _apiService.getSuggestAvoids();
       setState(() {
         _notificationService.updateNotificationContent(suggestMenus, suggestAvoids);
       });
-    } catch (e) {
-      print("Error fetching suggestions: $e");
-    }
   }
 
   // Fungsi untuk mengambil artikel dari API
   Future<void> _loadArticles() async {
-    try {
       suggestedArticles = await _apiService.getSuggestedArticles();
       setState(() {});
-    } catch (e) {
-      print("Error fetching articles: $e");
-    }
   }
 
   // Inisialisasi notifikasi lokal
@@ -126,19 +118,63 @@ class _BerandaScreenState extends State<BerandaScreen> {
           },
           items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
+              icon: _currentIndex == 0
+                  ? SvgPicture.asset(
+                AppVectors.iconBerandaBold, // Ikon selected
+                width: 24,
+                height: 24,
+              )
+                  : SvgPicture.asset(
+                AppVectors.iconBeranda, // Ikon unselected
+                width: 24,
+                height: 24,
+                color: AppColors.grey,
+              ),
               label: 'Beranda',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.alarm),
+              icon: _currentIndex == 1
+                  ? SvgPicture.asset(
+                AppVectors.iconPengingatBold, // Ikon selected
+                width: 24,
+                height: 24,
+              )
+                  : SvgPicture.asset(
+                AppVectors.iconPengingat, // Ikon unselected
+                width: 24,
+                height: 24,
+                color: AppColors.grey,
+              ),
               label: 'Pengingat',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.article),
+              icon: _currentIndex == 2
+                  ? SvgPicture.asset(
+                AppVectors.iconArtikelBold, // Ikon selected
+                width: 24,
+                height: 24,
+              )
+                  : SvgPicture.asset(
+                AppVectors.iconArtikel, // Ikon unselected
+                width: 24,
+                height: 24,
+                color: AppColors.grey,
+              ),
               label: 'Artikel',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person),
+              icon: _currentIndex == 3
+                  ? SvgPicture.asset(
+                AppVectors.iconProfilBold, // Ikon selected
+                width: 24,
+                height: 24,
+              )
+                  : SvgPicture.asset(
+                AppVectors.iconProfil, // Ikon unselected
+                width: 24,
+                height: 24,
+                color: AppColors.grey,
+              ),
               label: 'Profil',
             ),
           ],
@@ -227,21 +263,11 @@ class _BerandaContentScreenState extends State<BerandaContentScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _fetchSuggestMenus() async {
-    try {
       return await _apiService.getSuggestMenus();
-    } catch (e) {
-      print("Error fetching suggest menus: $e");
-      return []; // Kembalikan daftar kosong jika terjadi error
-    }
   }
 
   Future<List<Map<String, dynamic>>> _fetchSuggestAvoids() async {
-    try {
       return await _apiService.getSuggestAvoids();
-    } catch (e) {
-      print("Error fetching suggest avoids: $e");
-      return []; // Kembalikan daftar kosong jika terjadi error
-    }
   }
 
   // Menyalakan semua notifikasi Pengingat Makan
@@ -353,21 +379,16 @@ class _BerandaContentScreenState extends State<BerandaContentScreen> {
   // Mematikan semua notifikasi Pengingat Tidur
   void _disableAllSleepReminders() {
     // Nonaktifkan semua notifikasi pada jadwal bawaan
-    try {
-      _notificationService.cancelNotification(100); // Notifikasi tidur bawaan
-      _notificationService.cancelNotification(101); // Notifikasi bangun bawaan
+    _notificationService.cancelNotification(100); // Notifikasi tidur bawaan
+    _notificationService.cancelNotification(101); // Notifikasi bangun bawaan
 
-      // Nonaktifkan semua notifikasi pada jadwal khusus
-      for (final reminder in _sleepReminders) {
-        final sleepId = reminder['id'];
-        final wakeId = sleepId + 1;
+    // Nonaktifkan semua notifikasi pada jadwal khusus
+    for (final reminder in _sleepReminders) {
+      final sleepId = reminder['id'];
+      final wakeId = sleepId + 1;
 
-        _notificationService.cancelNotification(sleepId);
-        _notificationService.cancelNotification(wakeId);
-      }
-      print("Semua notifikasi pengingat tidur berhasil dibatalkan.");
-    } catch (e) {
-      print("Error membatalkan semua pengingat tidur: $e");
+      _notificationService.cancelNotification(sleepId);
+      _notificationService.cancelNotification(wakeId);
     }
   }
 
@@ -452,53 +473,41 @@ class _BerandaContentScreenState extends State<BerandaContentScreen> {
 
     final now = DateTime.now();
     for (var reminder in _healthCheckupReminders) {
-      try {
-        // Validasi bahwa reminder memiliki kunci yang dibutuhkan
-        if (reminder.containsKey('checkup_year') &&
-            reminder.containsKey('checkup_month') &&
-            reminder.containsKey('checkup_date') &&
-            reminder.containsKey('checkup_hour') &&
-            reminder.containsKey('checkup_minute')) {
-          final date = DateTime(
-            reminder['checkup_year'],
-            reminder['checkup_month'],
-            reminder['checkup_date'],
-            reminder['checkup_hour'],
-            reminder['checkup_minute'],
+      // Validasi bahwa reminder memiliki kunci yang dibutuhkan
+      if (reminder.containsKey('checkup_year') &&
+          reminder.containsKey('checkup_month') &&
+          reminder.containsKey('checkup_date') &&
+          reminder.containsKey('checkup_hour') &&
+          reminder.containsKey('checkup_minute')) {
+        final date = DateTime(
+          reminder['checkup_year'],
+          reminder['checkup_month'],
+          reminder['checkup_date'],
+          reminder['checkup_hour'],
+          reminder['checkup_minute'],
+        );
+        if (date.isAfter(now)) {
+          await _notificationService.scheduleHealthCheckupNotification(
+            reminder['id'],
+            reminder['checkup_name'],
+            reminder['checkup_note'],
+            date,
           );
-          if (date.isAfter(now)) {
-            await _notificationService.scheduleHealthCheckupNotification(
-              reminder['id'],
-              reminder['checkup_name'],
-              reminder['checkup_note'],
-              date,
-            );
-          }
         }
-      } catch (e) {
-        print('Error scheduling reminder: $e');
       }
     }
   }
 
   Future<void> _disableAllCheckupReminders() async {
-    try {
-      final notificationService = NotificationService();
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String>? checkupReminderIds = prefs.getStringList('checkupReminderIds');
+    final notificationService = NotificationService();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? checkupReminderIds = prefs.getStringList('checkupReminderIds');
 
-      if (checkupReminderIds != null) {
-        for (String id in checkupReminderIds) {
-          try {
-            await notificationService.cancelNotification(int.parse(id));
-          } catch (e) {
-            print('Error cancelling notification with ID $id: $e');
-          }
-        }
-        await prefs.remove('checkupReminderIds');
+    if (checkupReminderIds != null) {
+      for (String id in checkupReminderIds) {
+        await notificationService.cancelNotification(int.parse(id));
       }
-    } catch (e) {
-      print('Error disabling all checkup reminders: $e');
+      await prefs.remove('checkupReminderIds');
     }
   }
 
@@ -522,8 +531,8 @@ class _BerandaContentScreenState extends State<BerandaContentScreen> {
             Align(
               alignment: Alignment.bottomRight,
               child: SizedBox(
-                width: 76.0,
-                height: 34.0,
+                width: 90,
+                height: 34,
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pop();
@@ -552,17 +561,12 @@ class _BerandaContentScreenState extends State<BerandaContentScreen> {
 
   // Fungsi untuk mengambil artikel dari API
   Future<void> _loadArticles() async {
-    try {
-      suggestedArticles = await ApiService().getSuggestedArticles();
-      // Acak urutan artikel
-      suggestedArticles.shuffle();
-      // Batasi jumlah artikel menjadi 3
-      suggestedArticles = suggestedArticles.take(3).toList();
-      print("Articles fetched successfully");
-      setState(() {});
-    } catch (e) {
-      print("Error fetching articles: $e");
-    }
+    suggestedArticles = await ApiService().getSuggestedArticles();
+    // Acak urutan artikel
+    suggestedArticles.shuffle();
+    // Batasi jumlah artikel menjadi 3
+    suggestedArticles = suggestedArticles.take(3).toList();
+    setState(() {});
   }
 
   @override
@@ -1234,7 +1238,7 @@ class _BerandaContentScreenState extends State<BerandaContentScreen> {
                             child: Text(
                               ButtonBerandaText.selengkapnya,
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.white,
                               ),

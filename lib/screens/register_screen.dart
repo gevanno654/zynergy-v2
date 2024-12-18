@@ -355,12 +355,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           // Button 'Daftar'
                           ElevatedButton(
                             onPressed: _register,
-                            child: Text(
-                              RegisterText.registerButton,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                              ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  RegisterText.registerButton,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
@@ -371,7 +376,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 10),
+                          SizedBox(height: 16),
 
                           // Button 'Sudah Punya Akun'
                           ElevatedButton(
@@ -381,13 +386,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   MaterialPageRoute(builder: (context) => LoginScreen()),
                                 );
                               },
-                              child: Text(
-                                'Aku Udah Punya Akun',
-                                style: TextStyle(
-                                  color: AppColors.primary,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Aku Udah Punya Akun',
+                                    style: TextStyle(
+                                      color: AppColors.primary,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               ),
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,

@@ -104,7 +104,6 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
   @override
   void initState() {
     super.initState();
-    // Tidak perlu mengambil data dari server
   }
 
   void _toggleItem(int itemId, List<int> selectedList) {
@@ -225,8 +224,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
         await _apiService.updateGender(_selectedGender!);
       }
     } catch (e) {
-      print("Error saving personalization data: $e");
-      // Show error dialog or snackbar
+      print("Error saving personalization data");
     }
   }
 
@@ -246,6 +244,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                     controller: _pageController,
                     onPageChanged: (int page) {
                       setState(() {
+                        print("Current Page: $_currentPage, Target Page: $page");
                         if (page == 1 && _selectedGender == null) {
                           _showWarningDialog("Spill Jenis Kelaminmu dulu!");
                           _pageController.jumpToPage(_currentPage);
@@ -288,62 +287,69 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                   ),
                 ),
               ),
-              SizedBox(
-                width: 320,
-                height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF1FC29D),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16),
+                child: SizedBox(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF1FC29D),
+                      foregroundColor: Colors.white,
+                      minimumSize: Size(320, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
                     ),
-                  ),
-                  onPressed: _currentPage == 5
-                      ? () async {
-                    await _savePersonalizationData();
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => BerandaScreen()),
-                    );
-                  }
-                      : () async {
-                    if (_currentPage == 0 && _selectedGender == null) {
-                      _showWarningDialog("Spill Jenis Kelaminmu dulu!");
-                      return;
+                    onPressed: _currentPage == 5
+                        ? () async {
+                      await _savePersonalizationData();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => BerandaScreen()),
+                      );
                     }
+                        : () async {
+                      if (_currentPage == 0 && _selectedGender == null) {
+                        _showWarningDialog("Spill Jenis Kelaminmu dulu!");
+                        return;
+                      }
 
-                    if (_currentPage == 1 && _selectedInterests.isEmpty) {
-                      _showWarningDialog("Spill minimal 1 aktivitas kesukaanmu!");
-                      return;
-                    }
+                      if (_currentPage == 1 && _selectedInterests.isEmpty) {
+                        _showWarningDialog("Spill minimal 1 aktivitas kesukaanmu!");
+                        return;
+                      }
 
-                    if (_currentPage == 2 && _selectedFavorites.isEmpty) {
-                      _showWarningDialog("Spill minimal 1 makanan kesukaanmu!");
-                      return;
-                    }
+                      if (_currentPage == 2 && _selectedFavorites.isEmpty) {
+                        _showWarningDialog("Spill minimal 1 makanan kesukaanmu!");
+                        return;
+                      }
 
-                    if (_currentPage == 3 && _selectedDiseases.isEmpty) {
-                      _showWarningDialog("Spill minimal 1 riwayat penyakitmu!");
-                      return;
-                    }
+                      if (_currentPage == 3 && _selectedDiseases.isEmpty) {
+                        _showWarningDialog("Spill minimal 1 riwayat penyakitmu!");
+                        return;
+                      }
 
-                    if (_currentPage == 4 && _selectedAllergies.isEmpty) {
-                      _showWarningDialog("Spill minimal 1 pantangan atau alergi!");
-                      return;
-                    }
+                      if (_currentPage == 4 && _selectedAllergies.isEmpty) {
+                        _showWarningDialog("Spill minimal 1 pantangan atau alergi!");
+                        return;
+                      }
 
-                    // Pindah ke halaman berikutnya jika validasi terpenuhi
-                    await _savePersonalizationData();
-                    _pageController.nextPage(
-                      duration: Duration(milliseconds: 300),
-                      curve: Curves.easeIn,
-                    );
-                  },
-                  child: Text(
-                    _currentPage == 5 ? 'Gaaasss!' : 'Lanjut',
-                    style: TextStyle(
-                      fontSize: 16,
+                      // Pindah ke halaman berikutnya jika validasi terpenuhi
+                      await _savePersonalizationData();
+                      _pageController.nextPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeIn,
+                      );
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _currentPage == 5 ? 'Gaaasss!' : 'Lanjut',
+                          style: TextStyle(
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -358,7 +364,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
               top: 46,
               left: 10,
               child: IconButton(
-                icon: Icon(Icons.arrow_back, color: Colors.black),
+                icon: Icon(Icons.chevron_left_rounded, color: Colors.black),
                 onPressed: () {
                   Navigator.pop(context); // Kembali ke ProfilScreen
                 },

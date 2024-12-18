@@ -149,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser != null) {
         final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-        print(googleAuth.accessToken);
+        // print(googleAuth.accessToken);
 
         setState(() {
           _isLoading = true; // Tampilkan loading animation
@@ -208,12 +208,12 @@ class _LoginScreenState extends State<LoginScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Login Gagal'),
+          title: Text('Masuk Gagal'),
           content: Text(message),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog
+                Navigator.of(context).pop();
               },
               child: Text('OK'),
             ),
@@ -457,12 +457,17 @@ class _LoginScreenState extends State<LoginScreen> {
                               FocusScope.of(context).unfocus();
                               _login();
                             },
-                            child: Text(
-                              LoginText.loginButton,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                              ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  LoginText.loginButton,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
@@ -484,13 +489,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                 MaterialPageRoute(builder: (context) => RegisterScreen()),
                               );
                             },
-                            child: Text(
-                              LoginText.signUp,
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                              ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  LoginText.signUp,
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.white,

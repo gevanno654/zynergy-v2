@@ -192,7 +192,7 @@ class _EditJadwalOlahragaScreenState extends State<EditJadwalOlahragaScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          content: Text('Lo yakin mau nyimpen editan jadwal ini?'),
+          content: Text('Siap simpan jadwal olahragamu?'),
           actions: [
             TextButton(
               child: Text(
@@ -245,34 +245,27 @@ class _EditJadwalOlahragaScreenState extends State<EditJadwalOlahragaScreen> {
         'activity_frequency': _selectedFrequency == 'Harian' ? 1 : 0,
       };
 
-      try {
-        final response = await _apiService.updateLightActivityReminder(widget.initialData['id'], updatedData);
+      final response = await _apiService.updateLightActivityReminder(widget.initialData['id'], updatedData);
 
-        if (response.success) {
-          // Cancel the old notification
-          await _notificationService.cancelNotification(widget.initialData['id']);
+      if (response.success) {
+        // Cancel the old notification
+        await _notificationService.cancelNotification(widget.initialData['id']);
 
-          // Schedule the new notification
-          final now = DateTime.now();
-          final scheduledDate = DateTime(now.year, now.month, now.day, _selectedHour, _selectedMinute);
-          await _notificationService.scheduleNotification(
-            widget.initialData['id'],
-            'Pengingat Olahraga',
-            'Ingatlah untuk olahraga sesuai jadwal!',
-            scheduledDate,
-            _selectedFrequency,
-          );
+        // Schedule the new notification
+        final now = DateTime.now();
+        final scheduledDate = DateTime(now.year, now.month, now.day, _selectedHour, _selectedMinute);
+        await _notificationService.scheduleNotification(
+          widget.initialData['id'],
+          'Pengingat Olahraga',
+          'Ingatlah untuk olahraga sesuai jadwal!',
+          scheduledDate,
+          _selectedFrequency,
+        );
 
-          Navigator.of(context).pop(true);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Gagal menyimpan jadwal: ${response.message}')),
-          );
-        }
-      } catch (e) {
-        print('Error saving schedule: $e');
+        Navigator.of(context).pop(true);
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Terjadi kesalahan saat menyimpan jadwal: $e')),
+          SnackBar(content: Text('Gagal menyimpan jadwal')),
         );
       }
     }
@@ -293,7 +286,7 @@ class _EditJadwalOlahragaScreenState extends State<EditJadwalOlahragaScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          content: Text('Lo yakin mau hapus jadwal ini?'),
+          content: Text('Beneran mau hapus jadwal ini?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -339,23 +332,16 @@ class _EditJadwalOlahragaScreenState extends State<EditJadwalOlahragaScreen> {
 
     // Jika pengguna mengonfirmasi penghapusan
     if (confirmDelete == true) {
-      try {
-        // Cancel the notification before deleting the schedule
-        await _notificationService.cancelNotification(widget.initialData['id']);
+      // Cancel the notification before deleting the schedule
+      await _notificationService.cancelNotification(widget.initialData['id']);
 
-        final response = await _apiService.deleteLightActivityReminder(widget.initialData['id']);
+      final response = await _apiService.deleteLightActivityReminder(widget.initialData['id']);
 
-        if (response.success) {
-          Navigator.of(context).pop(true);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Gagal menghapus jadwal: ${response.message}')),
-          );
-        }
-      } catch (e) {
-        print('Error deleting schedule: $e');
+      if (response.success) {
+        Navigator.of(context).pop(true);
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Terjadi kesalahan saat menghapus jadwal: $e')),
+          SnackBar(content: Text('Gagal menghapus jadwal')),
         );
       }
     }
@@ -369,13 +355,13 @@ class _EditJadwalOlahragaScreenState extends State<EditJadwalOlahragaScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.black), // Menggunakan AppColors.black
+          icon: Icon(Icons.chevron_left_rounded, color: AppColors.darkGrey),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          'Sunting Jadwal Olahraga',
+          'Edit Jadwal Olahraga',
           style: TextStyle(
-            color: AppColors.black, // Menggunakan AppColors.black
+            color: AppColors.darkGrey,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -397,10 +383,20 @@ class _EditJadwalOlahragaScreenState extends State<EditJadwalOlahragaScreen> {
                       controller: _namaJadwalController,
                       decoration: InputDecoration(
                         labelText: EditJadwalOlahragaText.namaJadwalLabel,
-                        border: OutlineInputBorder(
+                        labelStyle: TextStyle(
+                          color: AppColors.darkGrey,
+                        ),
+                        focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
                           borderSide: BorderSide(
-                            color: AppColors.lightGrey, // Menggunakan AppColors.lightGrey
+                            color: AppColors.grey,
+                            width: 1.0,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: BorderSide(
+                            color: AppColors.grey,
                             width: 1.0,
                           ),
                         ),
@@ -409,6 +405,11 @@ class _EditJadwalOlahragaScreenState extends State<EditJadwalOlahragaScreen> {
                     SizedBox(height: 30),
                     Text(
                       PengingatDetailText.infoPilihWaktu,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.darkGrey,
+                      ),
                     ),
                     SizedBox(height: 10),
                     GestureDetector(
@@ -421,7 +422,7 @@ class _EditJadwalOlahragaScreenState extends State<EditJadwalOlahragaScreen> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8.0),
                           border: Border.all(
-                            color: AppColors.lightGrey, // Menggunakan AppColors.lightGrey
+                            color: AppColors.grey,
                             width: 1.0,
                           ),
                         ),
@@ -431,6 +432,7 @@ class _EditJadwalOlahragaScreenState extends State<EditJadwalOlahragaScreen> {
                             style: TextStyle(
                               fontSize: 26,
                               fontWeight: FontWeight.w500,
+                              color: AppColors.darkGrey,
                             ),
                           ),
                         ),
@@ -441,9 +443,9 @@ class _EditJadwalOlahragaScreenState extends State<EditJadwalOlahragaScreen> {
                       color: Colors.white,
                       elevation: 0.0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.0),
+                        borderRadius: BorderRadius.circular(8.0),
                         side: BorderSide(
-                          color: AppColors.lightGrey, // Menggunakan AppColors.lightGrey
+                          color: AppColors.grey,
                           width: 1.0,
                         ),
                       ),
@@ -465,6 +467,7 @@ class _EditJadwalOlahragaScreenState extends State<EditJadwalOlahragaScreen> {
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500,
+                                    color: AppColors.darkGrey,
                                   ),
                                 ),
                                 trailing: Row(

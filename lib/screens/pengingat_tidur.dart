@@ -45,58 +45,45 @@ class _PengingatTidurScreenState extends State<PengingatTidurScreen> {
           reminder['toggle_state'] = reminder['toggle_value'] == 1;
         });
       });
-    } else {
-      // Handle error
-      print('Error: ${response.message}');
     }
   }
 
   Future<void> _updateToggleValueSleepReminder(int id, bool value) async {
-    try {
-      await _apiService.updateToggleValueSleepReminder(id, value ? 1 : 0);
+    await _apiService.updateToggleValueSleepReminder(id, value ? 1 : 0);
 
-      if (value) {
-        // Jadwalkan ulang notifikasi jika toggle switch diaktifkan kembali
-        final reminder = _sleepReminders.firstWhere((reminder) => reminder['id'] == id);
-        DateTime sleepScheduledDate = DateTime.now().copyWith(
-          hour: reminder['sleep_hour'],
-          minute: reminder['sleep_minute'],
-          second: 0,
-        );
-        DateTime wakeScheduledDate = DateTime.now().copyWith(
-          hour: reminder['wake_hour'],
-          minute: reminder['wake_minute'],
-          second: 0,
-        );
-
-        await _notificationService.scheduleNotification(
-          id,
-          'Pengingat Tidur',
-          'Ingatlah untuk tidur sesuai jadwal!',
-          sleepScheduledDate,
-          reminder['sleep_frequency'] == 1 ? 'Harian' : 'Sekali',
-        );
-
-        await _notificationService.scheduleNotificationWithCustomSound(
-          id + 1,
-          'Pengingat Bangun',
-          'Ingatlah untuk bangun sesuai jadwal!',
-          wakeScheduledDate,
-          reminder['sleep_frequency'] == 1 ? 'Harian' : 'Sekali',
-        );
-      } else {
-        // Batalkan notifikasi jika toggle switch dinonaktifkan
-        await _notificationService.cancelNotification(id);
-        await _notificationService.cancelNotification(id + 1);
-      }
-    } catch (e) {
-      print("Error updating toggle value: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error updating toggle value: $e'),
-          backgroundColor: Colors.red,
-        ),
+    if (value) {
+      // Jadwalkan ulang notifikasi jika toggle switch diaktifkan kembali
+      final reminder = _sleepReminders.firstWhere((reminder) => reminder['id'] == id);
+      DateTime sleepScheduledDate = DateTime.now().copyWith(
+        hour: reminder['sleep_hour'],
+        minute: reminder['sleep_minute'],
+        second: 0,
       );
+      DateTime wakeScheduledDate = DateTime.now().copyWith(
+        hour: reminder['wake_hour'],
+        minute: reminder['wake_minute'],
+        second: 0,
+      );
+
+      await _notificationService.scheduleNotification(
+        id,
+        'Pengingat Tidur',
+        'Ingatlah untuk tidur sesuai jadwal!',
+        sleepScheduledDate,
+        reminder['sleep_frequency'] == 1 ? 'Harian' : 'Sekali',
+      );
+
+      await _notificationService.scheduleNotificationWithCustomSound(
+        id + 1,
+        'Pengingat Bangun',
+        'Ingatlah untuk bangun sesuai jadwal!',
+        wakeScheduledDate,
+        reminder['sleep_frequency'] == 1 ? 'Harian' : 'Sekali',
+      );
+    } else {
+      // Batalkan notifikasi jika toggle switch dinonaktifkan
+      await _notificationService.cancelNotification(id);
+      await _notificationService.cancelNotification(id + 1);
     }
   }
 
@@ -210,14 +197,15 @@ class _PengingatTidurScreenState extends State<PengingatTidurScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
+        forceMaterialTransparency: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.black),
+          icon: Icon(Icons.chevron_left_rounded, color: AppColors.darkGrey),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Pengingat Tidur',
           style: TextStyle(
-            color: AppColors.black,
+            color: AppColors.darkGrey,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -292,7 +280,10 @@ class _PengingatTidurScreenState extends State<PengingatTidurScreen> {
                                   _disableAllSleepReminders();
                                 }
                               },
-                              activeColor: AppColors.lightGrey,
+                              activeTrackColor: Colors.white,
+                              inactiveTrackColor: AppColors.lightGrey,
+                              thumbColor: AppColors.primary,
+                              inactiveThumbColor: Colors.white,
                             ),
                           ),
                         ],
@@ -310,6 +301,7 @@ class _PengingatTidurScreenState extends State<PengingatTidurScreen> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
+                    color: AppColors.darkGrey,
                   ),
                 ),
               ),
@@ -362,6 +354,7 @@ class _PengingatTidurScreenState extends State<PengingatTidurScreen> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
+                    color: AppColors.darkGrey,
                   ),
                 ),
               ),
@@ -430,7 +423,7 @@ class _PengingatTidurScreenState extends State<PengingatTidurScreen> {
                     Padding(
                       padding: const EdgeInsets.only(left: 6.0),
                       child: Text(
-                        ButtonPengingatText.tambah,
+                        ButtonPengingatText.tambahJadwalTidurButtonText,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 15,
@@ -491,6 +484,7 @@ class _PengingatTidurScreenState extends State<PengingatTidurScreen> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
+                          color: AppColors.darkGrey,
                         ),
                       ),
                       Text(
@@ -498,6 +492,7 @@ class _PengingatTidurScreenState extends State<PengingatTidurScreen> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w400,
+                          color: AppColors.darkGrey,
                         ),
                       ),
                     ],
@@ -514,6 +509,7 @@ class _PengingatTidurScreenState extends State<PengingatTidurScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
+                        color: AppColors.darkGrey,
                       ),
                     ),
                   ),
@@ -588,6 +584,7 @@ class _PengingatTidurScreenState extends State<PengingatTidurScreen> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
+                          color: AppColors.darkGrey,
                         ),
                       ),
                       Text(
@@ -595,6 +592,7 @@ class _PengingatTidurScreenState extends State<PengingatTidurScreen> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w400,
+                          color: AppColors.darkGrey,
                         ),
                       ),
                     ],
@@ -611,6 +609,7 @@ class _PengingatTidurScreenState extends State<PengingatTidurScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
+                        color: AppColors.darkGrey,
                       ),
                     ),
                   ),

@@ -85,34 +85,41 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
               SizedBox(height: 20),
-              SizedBox(
-                width: 320,
-                height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary, // Menggunakan konstanta dari app_colors.dart
-                      foregroundColor: AppColors.secondary, // Menggunakan konstanta dari app_colors.dart
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      )),
-                  onPressed: _currentPage == _pages.length - 1
-                      ? () async {
-                    SharedPreferences prefs = await SharedPreferences.getInstance();
-                    await prefs.setBool('isOnboardingComplete', true);
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()),
-                    );
-                  }
-                      : () {
-                    _pageController.nextPage(
-                      duration: Duration(milliseconds: 300),
-                      curve: Curves.easeIn,
-                    );
-                  },
-                  child: Text(
-                    _currentPage == _pages.length - 1 ? 'Memulai' : 'Selanjutnya',
-                    style: TextStyle(fontSize: 16),
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16),
+                child: SizedBox(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary, // Menggunakan konstanta dari app_colors.dart
+                        foregroundColor: AppColors.secondary, // Menggunakan konstanta dari app_colors.dart
+                        minimumSize: Size(320, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        )),
+                    onPressed: _currentPage == _pages.length - 1
+                        ? () async {
+                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                      await prefs.setBool('isOnboardingComplete', true);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                      );
+                    }
+                        : () {
+                      _pageController.nextPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeIn,
+                      );
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _currentPage == _pages.length - 1 ? 'Ayo mulai hidup sehat' : 'Lanjut',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

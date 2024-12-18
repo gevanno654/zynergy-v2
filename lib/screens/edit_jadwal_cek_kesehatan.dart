@@ -49,13 +49,13 @@ class _EditJadwalCekKesehatanScreenState extends State<EditJadwalCekKesehatanScr
         backgroundColor: Colors.white,
         forceMaterialTransparency: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.black),
+          icon: Icon(Icons.chevron_left_rounded, color: AppColors.darkGrey),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Edit Jadwal Cek Kesehatan',
           style: TextStyle(
-            color: AppColors.black,
+            color: AppColors.darkGrey,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -115,10 +115,20 @@ class _EditJadwalCekKesehatanScreenState extends State<EditJadwalCekKesehatanScr
       maxLength: maxLength,
       decoration: InputDecoration(
         labelText: label,
-        border: OutlineInputBorder(
+        labelStyle: TextStyle(
+          color: AppColors.darkGrey,
+        ),
+        focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
           borderSide: BorderSide(
-            color: AppColors.lightGrey,
+            color: AppColors.grey,
+            width: 1.0,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: BorderSide(
+            color: AppColors.grey,
             width: 1.0,
           ),
         ),
@@ -132,12 +142,16 @@ class _EditJadwalCekKesehatanScreenState extends State<EditJadwalCekKesehatanScr
       children: [
         Text(
           PengingatDetailText.infoTanggal,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: AppColors.darkGrey,
+          ),
         ),
         SizedBox(height: 10),
         Container(
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.lightGrey, width: 1.0),
+            border: Border.all(color: AppColors.grey, width: 1.0),
             borderRadius: BorderRadius.circular(16.0),
           ),
           child: CalendarDatePicker(
@@ -160,8 +174,12 @@ class _EditJadwalCekKesehatanScreenState extends State<EditJadwalCekKesehatanScr
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
-          'Pilih Waktu',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          AppText.infoPilihWaktu,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: AppColors.darkGrey,
+          ),
         ),
         SizedBox(height: 10),
         GestureDetector(
@@ -174,7 +192,7 @@ class _EditJadwalCekKesehatanScreenState extends State<EditJadwalCekKesehatanScr
               color: Colors.white,
               borderRadius: BorderRadius.circular(8.0),
               border: Border.all(
-                color: AppColors.lightGrey,
+                color: AppColors.grey,
                 width: 1.0,
               ),
             ),
@@ -184,6 +202,7 @@ class _EditJadwalCekKesehatanScreenState extends State<EditJadwalCekKesehatanScr
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w500,
+                  color: AppColors.darkGrey,
                 ),
               ),
             ),
@@ -222,7 +241,7 @@ class _EditJadwalCekKesehatanScreenState extends State<EditJadwalCekKesehatanScr
   void _showConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -234,7 +253,7 @@ class _EditJadwalCekKesehatanScreenState extends State<EditJadwalCekKesehatanScr
             ),
           ),
           content: Text(
-            'Lo yakin mau nyimpen editan jadwal ini?',
+            'Siap simpan jadwal cek kesehatanmu?',
             style: TextStyle(
               fontWeight: FontWeight.normal,
             ),
@@ -242,7 +261,7 @@ class _EditJadwalCekKesehatanScreenState extends State<EditJadwalCekKesehatanScr
           actions: <Widget>[
             TextButton(
               child: Text(
-                  'Batal',
+                'Batal',
                 style: TextStyle(
                   color: AppColors.danger,
                 ),
@@ -257,12 +276,12 @@ class _EditJadwalCekKesehatanScreenState extends State<EditJadwalCekKesehatanScr
                 ),
               ),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               },
             ),
             TextButton(
               child: Text(
-                  'Simpan',
+                'Simpan',
                 style: TextStyle(
                   color: Colors.white,
                 ),
@@ -274,7 +293,7 @@ class _EditJadwalCekKesehatanScreenState extends State<EditJadwalCekKesehatanScr
                 ),
               ),
               onPressed: () async {
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
 
                 final updatedData = {
                   'checkup_name': _titleController.text,
@@ -308,7 +327,8 @@ class _EditJadwalCekKesehatanScreenState extends State<EditJadwalCekKesehatanScr
                       scheduledDateTime,
                     );
 
-                    _showSuccessDialog(context);
+                    // Kembali ke halaman sebelumnya dengan result `true`
+                    Navigator.of(context).pop(true);
                   }
                 } else {
                   _showErrorDialog(context, response.message);
@@ -321,76 +341,44 @@ class _EditJadwalCekKesehatanScreenState extends State<EditJadwalCekKesehatanScr
     );
   }
 
-  void _showSuccessDialog(BuildContext context) {
+  void _showErrorDialog(BuildContext context, String message) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
           title: Text(
-              'Berhasil',
+            'Gagal!',
             style: TextStyle(
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
+              fontSize: 20,
             ),
           ),
           content: Text(
-              'Perubahan berhasil disimpan.',
+            'Kamu harus mengisi Nama Jadwal dan Catatan!',
             style: TextStyle(
+              fontSize: 16,
               fontWeight: FontWeight.normal,
             ),
           ),
           actions: <Widget>[
             TextButton(
               child: Text(
-                  'OK',
-                style: TextStyle(
-                  color: Colors.white
-                ),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              style: TextButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showErrorDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text('Error'),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              child: Text(
-                  'OK',
+                'OK',
                 style: TextStyle(
                   color: Colors.white,
                 ),
               ),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               },
               style: TextButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
-                )
+                ),
               ),
             ),
           ],
@@ -402,19 +390,19 @@ class _EditJadwalCekKesehatanScreenState extends State<EditJadwalCekKesehatanScr
   void _showPastScheduleWarningDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
           title: Text(
-              'Cek Lagi Dong!',
+            'Cek Lagi Dong!',
             style: TextStyle(
               fontWeight: FontWeight.bold,
             ),
           ),
           content: Text(
-              'Jadwal yang lo atur udah lewat. Lo yakin masih mau nyimpen ini?',
+            'Waktunya udah lewat lho. Kamu yakin masih mau nyimpen jadwal ini?',
             style: TextStyle(
               fontWeight: FontWeight.normal,
             ),
@@ -422,13 +410,13 @@ class _EditJadwalCekKesehatanScreenState extends State<EditJadwalCekKesehatanScr
           actions: <Widget>[
             TextButton(
               child: Text(
-                  'Batal',
+                'Batal',
                 style: TextStyle(
                   color: AppColors.darkGrey,
                 ),
               ),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               },
               style: TextButton.styleFrom(
                 side: BorderSide(
@@ -442,7 +430,7 @@ class _EditJadwalCekKesehatanScreenState extends State<EditJadwalCekKesehatanScr
             ),
             TextButton(
               child: Text(
-                  'Simpan',
+                'Simpan',
                 style: TextStyle(
                   color: Colors.white,
                 ),
@@ -454,7 +442,7 @@ class _EditJadwalCekKesehatanScreenState extends State<EditJadwalCekKesehatanScr
                 ),
               ),
               onPressed: () async {
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
 
                 final scheduledDateTime = DateTime(
                   _selectedDate.year,
@@ -471,7 +459,8 @@ class _EditJadwalCekKesehatanScreenState extends State<EditJadwalCekKesehatanScr
                   scheduledDateTime,
                 );
 
-                _showSuccessDialog(context);
+                // Kembali ke halaman sebelumnya dengan result `true`
+                Navigator.of(context).pop(true);
               },
             ),
           ],

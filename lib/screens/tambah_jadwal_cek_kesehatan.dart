@@ -27,13 +27,13 @@ class _TambahJadwalCekKesehatanScreenState extends State<TambahJadwalCekKesehata
         backgroundColor: Colors.white,
         forceMaterialTransparency: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.black),
+          icon: Icon(Icons.chevron_left_rounded, color: AppColors.darkGrey),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Tambah Jadwal Cek Kesehatan',
           style: TextStyle(
-            color: AppColors.black,
+            color: AppColors.darkGrey,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -73,7 +73,6 @@ class _TambahJadwalCekKesehatanScreenState extends State<TambahJadwalCekKesehata
             onPressed: () async {
               // Check if the title or note is empty
               if (_titleController.text.isEmpty || _noteController.text.isEmpty) {
-                // Show error dialog
                 _showErrorDialog(context, 'Nama jadwal dan catatan tidak boleh kosong.');
                 return; // Exit the function early
               }
@@ -110,9 +109,9 @@ class _TambahJadwalCekKesehatanScreenState extends State<TambahJadwalCekKesehata
                   // Simpan ID ke daftar notifikasi cek kesehatan
                   await _saveCheckupReminderId(response.data['id']);
 
-                  _showSuccessDialog(context);
+                  // Kirim data kembali ke layar sebelumnya
+                  Navigator.pop(context, true);
                 } else {
-                  // Tampilkan pesan kesalahan
                   _showErrorDialog(context, 'Waktu yang dipilih sudah lewat.');
                 }
               } else {
@@ -150,11 +149,21 @@ class _TambahJadwalCekKesehatanScreenState extends State<TambahJadwalCekKesehata
       controller: controller,
       maxLength: maxLength,
       decoration: InputDecoration(
-        labelText: label, // Label akan berada di placeholder saat tidak fokus
-        border: OutlineInputBorder(
+        labelText: label,
+        labelStyle: TextStyle(
+          color: AppColors.darkGrey,
+        ),
+        focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
           borderSide: BorderSide(
-            color: AppColors.lightGrey,
+            color: AppColors.grey,
+            width: 1.0,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: BorderSide(
+            color: AppColors.grey,
             width: 1.0,
           ),
         ),
@@ -168,12 +177,16 @@ class _TambahJadwalCekKesehatanScreenState extends State<TambahJadwalCekKesehata
       children: [
         Text(
           PengingatDetailText.infoTanggal,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: AppColors.darkGrey,
+          ),
         ),
         SizedBox(height: 10),
         Container(
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.lightGrey, width: 1.0),
+            border: Border.all(color: AppColors.grey, width: 1.0),
             borderRadius: BorderRadius.circular(16.0),
           ),
           child: CalendarDatePicker(
@@ -196,8 +209,12 @@ class _TambahJadwalCekKesehatanScreenState extends State<TambahJadwalCekKesehata
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
-          'Pilih Waktu',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          AppText.infoPilihWaktu,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: AppColors.darkGrey,
+          ),
         ),
         SizedBox(height: 10),
         GestureDetector(
@@ -210,7 +227,7 @@ class _TambahJadwalCekKesehatanScreenState extends State<TambahJadwalCekKesehata
               color: Colors.white,
               borderRadius: BorderRadius.circular(8.0),
               border: Border.all(
-                color: AppColors.lightGrey,
+                color: AppColors.grey,
                 width: 1.0,
               ),
             ),
@@ -220,6 +237,7 @@ class _TambahJadwalCekKesehatanScreenState extends State<TambahJadwalCekKesehata
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w500,
+                  color: AppColors.darkGrey,
                 ),
               ),
             ),
@@ -255,39 +273,42 @@ class _TambahJadwalCekKesehatanScreenState extends State<TambahJadwalCekKesehata
     );
   }
 
-  void _showSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Berhasil'),
-          content: Text('Pengingat berhasil dibuat.'),
-          actions: <Widget>[
-            TextButton(
-              child: Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void _showErrorDialog(BuildContext context, String message) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Error'),
-          content: Text(message),
+          title: Text(
+            'Gagal!',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 20,
+            ),
+          ),
+          content: Text(
+            'Kamu harus mengisi Nama Jadwal dan Catatan!',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
           actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: Text(
+                'OK',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
+              style: TextButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
             ),
           ],
         );

@@ -5,6 +5,7 @@ import 'timezone_helper.dart';
 import 'screens/splash_screen.dart';
 import 'api/notification_service.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

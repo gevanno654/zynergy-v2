@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:developer';
+import 'package:shimmer/shimmer.dart';
 import 'tambah_jadwal_makan.dart';
 import 'edit_jadwal_makan.dart';
 import '../core/config/strings/app_text.dart';
@@ -10,7 +10,6 @@ import '../core/config/theme/app_colors.dart';
 import '../core/config/assets/app_vectors.dart';
 import '../api/api_service.dart';
 import '../api/notification_service.dart';
-import 'package:shimmer/shimmer.dart';
 
 class PengingatMakanScreen extends StatefulWidget {
   @override
@@ -36,50 +35,30 @@ class _PengingatMakanScreenState extends State<PengingatMakanScreen> {
   }
 
   Future<void> _fetchSpecialSchedules() async {
-    try {
-      final schedules = await _apiService.getSpecialSchedules();
+    final schedules = await _apiService.getSpecialSchedules();
 
-      setState(() {
-        _specialSchedules = schedules;
-      });
-    } catch (e) {
-      print("Error fetching special schedules: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error fetching special schedules: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    setState(() {
+      _specialSchedules = schedules;
+    });
   }
 
   Future<void> _updateToggleValue(int id, int toggleValue, Map<String, dynamic> schedule) async {
-    try {
-      await _apiService.updateToggleValue(id, toggleValue);
+    await _apiService.updateToggleValue(id, toggleValue);
 
-      if (toggleValue == 0) {
-        // Batalkan notifikasi jika toggle switch dinonaktifkan
-        await _notificationService.cancelNotification(id);
-      } else {
-        // Jadwalkan ulang notifikasi jika toggle switch diaktifkan kembali
-        DateTime scheduledDate = DateTime.now().add(Duration(seconds: 1)); // Set the default time to 1 second later
-        scheduledDate = scheduledDate.copyWith(hour: schedule['meal_hour'], minute: schedule['meal_minute'], second: 0);
+    if (toggleValue == 0) {
+      // Batalkan notifikasi jika toggle switch dinonaktifkan
+      await _notificationService.cancelNotification(id);
+    } else {
+      // Jadwalkan ulang notifikasi jika toggle switch diaktifkan kembali
+      DateTime scheduledDate = DateTime.now().add(Duration(seconds: 1)); // Set the default time to 1 second later
+      scheduledDate = scheduledDate.copyWith(hour: schedule['meal_hour'], minute: schedule['meal_minute'], second: 0);
 
-        await _notificationService.scheduleNotification(
-          id, // Gunakan id sebagai notification_id
-          'Pengingat Makan',
-          'Saatnya makan: ${schedule['meal_name']}',
-          scheduledDate,
-          schedule['meal_frequency'] == 1 ? 'Harian' : 'Sekali',
-        );
-      }
-    } catch (e) {
-      print("Error updating toggle value: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error updating toggle value: $e'),
-          backgroundColor: Colors.red,
-        ),
+      await _notificationService.scheduleNotification(
+        id, // Gunakan id sebagai notification_id
+        'Pengingat Makan',
+        'Saatnya makan: ${schedule['meal_name']}',
+        scheduledDate,
+        schedule['meal_frequency'] == 1 ? 'Harian' : 'Sekali',
       );
     }
   }
@@ -101,21 +80,11 @@ class _PengingatMakanScreenState extends State<PengingatMakanScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _fetchSuggestMenus() async {
-    try {
-      return await _apiService.getSuggestMenus();
-    } catch (e) {
-      print("Error fetching suggest menus: $e");
-      return []; // Kembalikan daftar kosong jika terjadi error
-    }
+    return await _apiService.getSuggestMenus();
   }
 
   Future<List<Map<String, dynamic>>> _fetchSuggestAvoids() async {
-    try {
-      return await _apiService.getSuggestAvoids();
-    } catch (e) {
-      print("Error fetching suggest avoids: $e");
-      return []; // Kembalikan daftar kosong jika terjadi error
-    }
+    return await _apiService.getSuggestAvoids();
   }
 
   void _enableAllMealSchedules() async {
@@ -173,16 +142,17 @@ class _PengingatMakanScreenState extends State<PengingatMakanScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         forceMaterialTransparency: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.black),
+          icon: Icon(Icons.chevron_left_rounded, color: AppColors.darkGrey),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Pengingat Makan',
           style: TextStyle(
-            color: AppColors.black,
+            color: AppColors.darkGrey,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -213,6 +183,7 @@ class _PengingatMakanScreenState extends State<PengingatMakanScreen> {
                   },
                   child: Card(
                     color: AppColors.primary,
+                    elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(99.0),
                     ),
@@ -257,7 +228,10 @@ class _PengingatMakanScreenState extends State<PengingatMakanScreen> {
                                   _disableAllMealNotifications();
                                 }
                               },
-                              activeColor: AppColors.lightGrey,
+                              activeTrackColor: Colors.white,
+                              inactiveTrackColor: AppColors.lightGrey,
+                              thumbColor: AppColors.primary,
+                              inactiveThumbColor: Colors.white,
                             ),
                           ),
                         ],
@@ -278,6 +252,7 @@ class _PengingatMakanScreenState extends State<PengingatMakanScreen> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
+                        color: AppColors.darkGrey,
                       ),
                     ),
                   ),
@@ -404,6 +379,7 @@ class _PengingatMakanScreenState extends State<PengingatMakanScreen> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
+                        color: AppColors.darkGrey,
                       ),
                     ),
                   ),
@@ -431,7 +407,9 @@ class _PengingatMakanScreenState extends State<PengingatMakanScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => EditJadwalMakanScreen(mealSchedule: schedule)),
-                            );
+                            ).then((_) {
+                              _fetchSpecialSchedules();
+                            });
                           },
                           schedule['id'],
                           schedule,
@@ -456,7 +434,7 @@ class _PengingatMakanScreenState extends State<PengingatMakanScreen> {
                 context,
                 MaterialPageRoute(builder: (context) => TambahJadwalMakanScreen()),
               ).then((_) {
-                _fetchSpecialSchedules(); // Refresh data after adding new schedule
+                _fetchSpecialSchedules();
               });
             },
             style: ElevatedButton.styleFrom(
@@ -539,12 +517,14 @@ class _PengingatMakanScreenState extends State<PengingatMakanScreen> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
+                      color: AppColors.darkGrey,
                     ),
                   ),
                   Text(
                     frequency,
                     style: TextStyle(
                       fontSize: 12,
+                      color: AppColors.darkGrey,
                     ),
                   ),
                 ],
@@ -559,12 +539,13 @@ class _PengingatMakanScreenState extends State<PengingatMakanScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
+                        color: AppColors.darkGrey,
                       ),
                     ),
                   ),
                 ),
               ),
-              CupertinoSwitch( // Mengganti Switch dengan CupertinoSwitch
+              CupertinoSwitch(
                 value: isEnabled,
                 onChanged: onChanged,
                 activeColor: AppColors.primary,
@@ -601,12 +582,14 @@ class _PengingatMakanScreenState extends State<PengingatMakanScreen> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
+                      color: AppColors.darkGrey,
                     ),
                   ),
                   Text(
                     frequency,
                     style: TextStyle(
                       fontSize: 12,
+                      color: AppColors.darkGrey,
                     ),
                   ),
                 ],
@@ -621,6 +604,7 @@ class _PengingatMakanScreenState extends State<PengingatMakanScreen> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
+                        color: AppColors.darkGrey,
                       ),
                     ),
                   ),
@@ -629,14 +613,12 @@ class _PengingatMakanScreenState extends State<PengingatMakanScreen> {
               IconButton(
                 icon: Icon(Icons.edit, color: AppColors.primary),
                 onPressed: () {
-                  // Tambahkan log di sini
-                  log('Opening edit screen for schedule id: $id, notification_id: ${schedule['notification_id']}');
                   onEditPressed();
                 },
               ),
               Transform.scale(
                 scale: 0.9,
-                child: CupertinoSwitch( // Mengganti Switch dengan CupertinoSwitch
+                child: CupertinoSwitch(
                   value: isEnabled,
                   onChanged: onChanged,
                   activeColor: AppColors.primary,

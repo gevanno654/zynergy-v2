@@ -216,7 +216,10 @@ class _EditJadwalTidurScreenState extends State<EditJadwalTidurScreen> {
   }
 
   Future<void> _updateSleepReminder() async {
-    showDialog(
+    if (!mounted) return; // Pastikan widget masih aktif sebelum memulai operasi
+
+    // Tampilkan dialog konfirmasi
+    final bool? confirm = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -225,112 +228,36 @@ class _EditJadwalTidurScreenState extends State<EditJadwalTidurScreen> {
           ),
           title: Text(
             'Konfirmasi Edit',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          content: Text(
-            'Lo yakin mau nyimpen editan jadwal ini?',
-            style: TextStyle(
-              fontWeight: FontWeight.normal,
-            ),
-          ),
+          content: Text('Siap simpan jadwal tidurmu?'),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
               child: Text(
                 'Batal',
-                style: TextStyle(
-                  color: AppColors.danger,
-                ),
+                style: TextStyle(color: AppColors.danger),
               ),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
               style: TextButton.styleFrom(
-                side: BorderSide(
-                  color: AppColors.danger,
-                  width: 1.0,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                  side: BorderSide(
+                    color: AppColors.danger,
+                    width: 1.0,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  )
               ),
             ),
             TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop(); // Close the dialog
-                final apiService = ApiService();
-                final sleepFrequency = _selectedFrequency == 'Sekali' ? 0 : 1;
-
-                final response = await apiService.updateSleepReminder(widget.id, {
-                  'sleep_name': _namaJadwalController.text,
-                  'sleep_hour': _selectedSleepHour,
-                  'sleep_minute': _selectedSleepMinute,
-                  'wake_hour': _selectedWakeHour,
-                  'wake_minute': _selectedWakeMinute,
-                  'sleep_frequency': sleepFrequency,
-                  'toggle_value': 1,
-                });
-
-                if (response.success) {
-                  // Schedule notification after successfully updating sleep reminder
-                  final now = DateTime.now();
-                  final sleepHour = _selectedSleepHour;
-                  final sleepMinute = _selectedSleepMinute;
-                  final wakeHour = _selectedWakeHour;
-                  final wakeMinute = _selectedWakeMinute;
-                  final sleepFrequency = _selectedFrequency;
-
-                  DateTime sleepScheduledDate = DateTime(now.year, now.month, now.day, sleepHour, sleepMinute);
-                  DateTime wakeScheduledDate = DateTime(now.year, now.month, now.day, wakeHour, wakeMinute);
-
-                  if (sleepScheduledDate.isBefore(now)) {
-                    if (sleepFrequency == 'Sekali') {
-                      sleepScheduledDate = sleepScheduledDate.add(Duration(days: 1));
-                    }
-                  }
-
-                  if (wakeScheduledDate.isBefore(now)) {
-                    if (sleepFrequency == 'Sekali') {
-                      wakeScheduledDate = wakeScheduledDate.add(Duration(days: 1));
-                    }
-                  }
-
-                  final NotificationService notificationService = NotificationService();
-
-                  print('Scheduling sleep notification: id=${widget.id}, frequency=$sleepFrequency');
-                  notificationService.scheduleNotification(
-                    widget.id, // Gunakan id sebagai notification_id
-                    'Pengingat Tidur',
-                    'Ingatlah untuk tidur sesuai jadwal!',
-                    sleepScheduledDate,
-                    sleepFrequency,
-                  );
-
-                  print('Scheduling wake notification: id=${widget.id + 1}, frequency=$sleepFrequency');
-                  notificationService.scheduleNotificationWithCustomSound(
-                    widget.id + 1, // Gunakan id + 1 sebagai notification_id untuk alarm bangun
-                    'Pengingat Bangun',
-                    'Ingatlah untuk bangun sesuai jadwal!',
-                    wakeScheduledDate,
-                    sleepFrequency,
-                  );
-
-                  Navigator.of(context).pop();
-                } else {
-                  // Handle error
-                  print('Error: ${response.message}');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(response.message)),
-                  );
-                }
-              },
               child: Text(
                 'Simpan',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
+                style: TextStyle(color: Colors.white),
               ),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
               style: TextButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 shape: RoundedRectangleBorder(
@@ -342,10 +269,87 @@ class _EditJadwalTidurScreenState extends State<EditJadwalTidurScreen> {
         );
       },
     );
+
+    if (confirm != true || !mounted) return; // Batalkan jika pengguna menolak atau widget tidak aktif
+
+    // Lakukan update data
+    final apiService = ApiService();
+    final response = await apiService.updateSleepReminder(widget.id, {
+      'sleep_name': _namaJadwalController.text,
+      'sleep_hour': _selectedSleepHour,
+      'sleep_minute': _selectedSleepMinute,
+      'wake_hour': _selectedWakeHour,
+      'wake_minute': _selectedWakeMinute,
+      'sleep_frequency': _selectedFrequency == 'Sekali' ? 0 : 1,
+      'toggle_value': 1,
+    });
+
+    if (response.success) {
+      // Perbarui notifikasi setelah berhasil menyimpan
+      final NotificationService notificationService = NotificationService();
+      final now = DateTime.now();
+
+      // Jadwalkan ulang notifikasi tidur
+      DateTime sleepScheduledDate = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        _selectedSleepHour,
+        _selectedSleepMinute,
+      );
+
+      if (sleepScheduledDate.isBefore(now) && _selectedFrequency == 'Sekali') {
+        sleepScheduledDate = sleepScheduledDate.add(Duration(days: 1));
+      }
+
+      await notificationService.scheduleNotification(
+        widget.id,
+        'Pengingat Tidur',
+        'Ingatlah untuk tidur sesuai jadwal!',
+        sleepScheduledDate,
+        _selectedFrequency,
+      );
+
+      // Jadwalkan ulang notifikasi bangun
+      DateTime wakeScheduledDate = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        _selectedWakeHour,
+        _selectedWakeMinute,
+      );
+
+      if (wakeScheduledDate.isBefore(now) && _selectedFrequency == 'Sekali') {
+        wakeScheduledDate = wakeScheduledDate.add(Duration(days: 1));
+      }
+
+      await notificationService.scheduleNotificationWithCustomSound(
+        widget.id + 1,
+        'Pengingat Bangun',
+        'Ingatlah untuk bangun sesuai jadwal!',
+        wakeScheduledDate,
+        _selectedFrequency,
+      );
+
+      // Kembali ke halaman `PengingatTidurScreen`
+      if (mounted) {
+        Navigator.of(context).pop(); // Kembali ke halaman sebelumnya
+      }
+    } else {
+      // Tangani kesalahan
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+      }
+    }
   }
 
   Future<void> _deleteSleepReminder() async {
-    showDialog(
+    if (!mounted) return; // Pastikan widget masih aktif sebelum memulai operasi
+
+    // Tampilkan dialog konfirmasi
+    final bool? confirm = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -354,26 +358,17 @@ class _EditJadwalTidurScreenState extends State<EditJadwalTidurScreen> {
           ),
           title: Text(
             'Konfirmasi Hapus',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          content: Text(
-            'Lo yakin mau hapus jadwal ini?',
-            style: TextStyle(
-              fontWeight: FontWeight.normal,
-            ),
-          ),
+          content: Text('Beneran mau hapus jadwal ini?'),
           actions: [
             TextButton(
               child: Text(
                 'Batal',
-                style: TextStyle(
-                  color: AppColors.darkGrey,
-                ),
+                style: TextStyle(color: AppColors.darkGrey),
               ),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(false); // Kembalikan nilai false
               },
               style: TextButton.styleFrom(
                 side: BorderSide(
@@ -382,35 +377,13 @@ class _EditJadwalTidurScreenState extends State<EditJadwalTidurScreen> {
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
-                )
+                ),
               ),
             ),
             TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop();
-                final apiService = ApiService();
-                final response = await apiService.deleteSleepReminder(widget.id);
-
-                if (response.success) {
-                  // Cancel scheduled notifications for sleep and wake
-                  final NotificationService notificationService = NotificationService();
-                  await notificationService.cancelNotification(widget.id); // Cancel sleep notification
-                  await notificationService.cancelNotification(widget.id + 1); // Cancel wake notification
-
-                  Navigator.of(context).pop();
-                } else {
-                  // Handle error
-                  print('Error: ${response.message}');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(response.message)),
-                  );
-                }
-              },
               child: Text(
                 'Hapus',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
+                style: TextStyle(color: Colors.white),
               ),
               style: TextButton.styleFrom(
                 backgroundColor: AppColors.danger,
@@ -418,11 +391,39 @@ class _EditJadwalTidurScreenState extends State<EditJadwalTidurScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
+              onPressed: () {
+                Navigator.of(context).pop(true); // Kembalikan nilai true
+              },
             ),
           ],
         );
       },
     );
+
+    if (confirm != true || !mounted) return; // Batal jika pengguna menolak atau widget tidak aktif
+
+    // Lakukan penghapusan
+    final apiService = ApiService();
+    final response = await apiService.deleteSleepReminder(widget.id);
+
+    if (response.success) {
+      // Batalkan notifikasi
+      final NotificationService notificationService = NotificationService();
+      await notificationService.cancelNotification(widget.id); // Cancel sleep notification
+      await notificationService.cancelNotification(widget.id + 1); // Cancel wake notification
+
+      // Kembali ke halaman sebelumnya
+      if (mounted) {
+        Navigator.of(context).pop(); // Kembali ke halaman sebelumnya
+      }
+    } else {
+      // Tangani kesalahan
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+      }
+    }
   }
 
   @override
@@ -433,13 +434,13 @@ class _EditJadwalTidurScreenState extends State<EditJadwalTidurScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.black),
+          icon: Icon(Icons.chevron_left_rounded, color: AppColors.darkGrey),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          'Sunting Jadwal Tidur',
+          'Edit Jadwal Tidur',
           style: TextStyle(
-            color: AppColors.black,
+            color: AppColors.darkGrey,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -461,10 +462,20 @@ class _EditJadwalTidurScreenState extends State<EditJadwalTidurScreen> {
                       controller: _namaJadwalController,
                       decoration: InputDecoration(
                         labelText: EditJadwalTidurText.namaJadwalLabel,
-                        border: OutlineInputBorder(
+                        labelStyle: TextStyle(
+                          color: AppColors.darkGrey,
+                        ),
+                        focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
                           borderSide: BorderSide(
-                            color: AppColors.lightGrey,
+                            color: AppColors.grey,
+                            width: 1.0,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: BorderSide(
+                            color: AppColors.grey,
                             width: 1.0,
                           ),
                         ),
@@ -489,7 +500,7 @@ class _EditJadwalTidurScreenState extends State<EditJadwalTidurScreen> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8.0),
                           border: Border.all(
-                            color: AppColors.lightGrey,
+                            color: AppColors.grey,
                             width: 1.0,
                           ),
                         ),
@@ -507,6 +518,11 @@ class _EditJadwalTidurScreenState extends State<EditJadwalTidurScreen> {
                     SizedBox(height: 5),
                     Text(
                       PengingatDetailText.infoPilihWaktu,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.darkGrey,
+                      ),
                     ),
                     SizedBox(height: 20),
                     Text(
@@ -527,7 +543,7 @@ class _EditJadwalTidurScreenState extends State<EditJadwalTidurScreen> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8.0),
                           border: Border.all(
-                            color: AppColors.lightGrey,
+                            color: AppColors.grey,
                             width: 1.0,
                           ),
                         ),
@@ -545,6 +561,11 @@ class _EditJadwalTidurScreenState extends State<EditJadwalTidurScreen> {
                     SizedBox(height: 5),
                     Text(
                       PengingatDetailText.infoPilihWaktu,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.darkGrey,
+                      ),
                     ),
                     SizedBox(height: 20),
                     Card(
@@ -585,8 +606,11 @@ class _EditJadwalTidurScreenState extends State<EditJadwalTidurScreen> {
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16.0),
+                                      ),
                                       content: Text(
-                                        'Mengaktifkan mode ini akan otomatis membuat alarm bangun 8 jam dari jadwal alarm tidur dan menonaktifkan alarm bangun yang telah diatur.',
+                                        AppText.infoDurasiTidur,
                                         style: TextStyle(
                                           fontSize: 14,
                                         ),
@@ -604,8 +628,12 @@ class _EditJadwalTidurScreenState extends State<EditJadwalTidurScreen> {
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
-                                          style: TextButton.styleFrom(
+                                          style: ElevatedButton.styleFrom(
                                             backgroundColor: AppColors.primary,
+                                            foregroundColor: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(8.0),
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -626,7 +654,10 @@ class _EditJadwalTidurScreenState extends State<EditJadwalTidurScreen> {
                                     }
                                   });
                                 },
-                                activeColor: AppColors.lightGrey,
+                                activeTrackColor: Colors.white,
+                                inactiveTrackColor: AppColors.lightGrey,
+                                thumbColor: AppColors.primary,
+                                inactiveThumbColor: Colors.white,
                               ),
                             ),
                           ],
@@ -638,9 +669,9 @@ class _EditJadwalTidurScreenState extends State<EditJadwalTidurScreen> {
                       color: Colors.white,
                       elevation: 0.0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.0),
+                        borderRadius: BorderRadius.circular(8.0),
                         side: BorderSide(
-                          color: AppColors.lightGrey,
+                          color: AppColors.grey,
                           width: 1.0,
                         ),
                       ),

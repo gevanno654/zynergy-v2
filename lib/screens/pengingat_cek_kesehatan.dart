@@ -62,7 +62,7 @@ class _PengingatCekKesehatanScreenState extends State<PengingatCekKesehatanScree
         _showErrorDialog(context, response.message);
       }
     } catch (e) {
-      _showErrorDialog(context, 'Failed to fetch health checkup reminders');
+      _showErrorDialog(context, 'Gagal mendapatkan data.');
     }
   }
 
@@ -109,13 +109,13 @@ class _PengingatCekKesehatanScreenState extends State<PengingatCekKesehatanScree
         backgroundColor: Colors.white,
         forceMaterialTransparency: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.black),
+          icon: Icon(Icons.chevron_left_rounded, color: AppColors.darkGrey),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Pengingat Cek Kesehatan',
           style: TextStyle(
-            color: AppColors.black,
+            color: AppColors.darkGrey,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -125,7 +125,7 @@ class _PengingatCekKesehatanScreenState extends State<PengingatCekKesehatanScree
           Padding(
             padding: const EdgeInsets.only(right: 10),
             child: IconButton(
-              icon: Icon(Icons.filter_alt_off_rounded, color: AppColors.black),
+              icon: Icon(Icons.filter_alt_off_rounded, color: AppColors.darkGrey),
               onPressed: _clearFilter,
             ),
           ),
@@ -182,7 +182,10 @@ class _PengingatCekKesehatanScreenState extends State<PengingatCekKesehatanScree
                                   _cancelAllNotifications();
                                 }
                               },
-                              activeColor: AppColors.lightGrey,
+                              activeTrackColor: Colors.white,
+                              inactiveTrackColor: AppColors.lightGrey,
+                              thumbColor: AppColors.primary,
+                              inactiveThumbColor: Colors.white,
                             ),
                           ),
                         ],
@@ -283,8 +286,8 @@ class _PengingatCekKesehatanScreenState extends State<PengingatCekKesehatanScree
                               () {
                             _showInfoDialog(context, reminder, formattedDate, time);
                           },
-                              () {
-                            Navigator.push(
+                              () async {
+                            final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => EditJadwalCekKesehatanScreen(
@@ -296,6 +299,11 @@ class _PengingatCekKesehatanScreenState extends State<PengingatCekKesehatanScree
                                 ),
                               ),
                             );
+
+                            // Jika ada data yang dikirim kembali, fetch ulang data
+                            if (result != null && result == true) {
+                              await _fetchHealthCheckupReminders();
+                            }
                           },
                               () {
                             _showDeleteConfirmationDialog(context, reminder['id']);
@@ -326,28 +334,53 @@ class _PengingatCekKesehatanScreenState extends State<PengingatCekKesehatanScree
       ),
       persistentFooterButtons: [
         SizedBox(
-          width: 320,
+          width: double.infinity,
           height: 40,
           child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            ),
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              final result = await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => TambahJadwalCekKesehatanScreen()),
               );
+
+              // Jika ada data yang dikirim kembali, fetch ulang data
+              if (result != null && result == true) {
+                _fetchHealthCheckupReminders();
+              }
             },
-            child: Text(
-              ButtonPengingatText.tambah,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Colors.white,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.0),
               ),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Transform.scale(
+                      scale: 0.7,
+                      child: Icon(
+                        Icons.add,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 6.0),
+                      child: Text(
+                        ButtonPengingatText.tambahJadwalCheckupButtonText,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
@@ -400,6 +433,7 @@ class _PengingatCekKesehatanScreenState extends State<PengingatCekKesehatanScree
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
+                        color: AppColors.darkGrey,
                       ),
                     ),
                     Text(
@@ -407,6 +441,7 @@ class _PengingatCekKesehatanScreenState extends State<PengingatCekKesehatanScree
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.normal,
+                        color: AppColors.darkGrey,
                       ),
                     ),
                   ],
@@ -451,12 +486,14 @@ class _PengingatCekKesehatanScreenState extends State<PengingatCekKesehatanScree
             'Konfirmasi Hapus',
             style: TextStyle(
               fontWeight: FontWeight.bold,
+              color: AppColors.darkGrey,
             ),
           ),
           content: Text(
-            'Apakah Anda yakin ingin menghapus jadwal ini?',
+            'Beneran mau hapus jadwal ini?',
             style: TextStyle(
               fontWeight: FontWeight.normal,
+              color: AppColors.darkGrey,
             ),
           ),
           actions: <Widget>[
@@ -464,7 +501,7 @@ class _PengingatCekKesehatanScreenState extends State<PengingatCekKesehatanScree
               child: Text(
                 'Batal',
                 style: TextStyle(
-                  color: AppColors.primary,
+                  color: AppColors.darkGrey,
                 ),
               ),
               onPressed: () {
@@ -524,6 +561,7 @@ class _PengingatCekKesehatanScreenState extends State<PengingatCekKesehatanScree
             reminder['checkup_name'],
             style: TextStyle(
               fontWeight: FontWeight.w600,
+              color: AppColors.darkGrey,
             ),
           ),
           content: Column(
@@ -534,24 +572,28 @@ class _PengingatCekKesehatanScreenState extends State<PengingatCekKesehatanScree
                 'Hari: ${formattedDate.split(',')[0]}',
                 style: TextStyle(
                   fontSize: 16,
+                  color: AppColors.darkGrey,
                 ),
               ),
               Text(
                 'Tanggal: ${formattedDate.split(',')[1].trim()}',
                 style: TextStyle(
                   fontSize: 16,
+                  color: AppColors.darkGrey,
                 ),
               ),
               Text(
                 'Jam: ${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}',
                 style: TextStyle(
                   fontSize: 16,
+                  color: AppColors.darkGrey,
                 ),
               ),
               Text(
                 'Catatan: ${reminder['checkup_note']}',
                 style: TextStyle(
                   fontSize: 16,
+                  color: AppColors.darkGrey,
                 ),
               ),
             ],
@@ -586,7 +628,7 @@ class _PengingatCekKesehatanScreenState extends State<PengingatCekKesehatanScree
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Error'),
+          title: Text('Mohon Maaf'),
           content: Text(message),
           actions: <Widget>[
             TextButton(

@@ -55,28 +55,14 @@ class _PengingatOlahragaScreenState extends State<PengingatOlahragaScreen> {
   }
 
   Future<void> fetchLightActivityReminders() async {
-    try {
-      final reminders = await _apiService.fetchLightActivityReminders();
-      setState(() {
-        _lightActivityReminders = reminders;
-      });
-    } catch (e) {
-      print("Error fetching light activity reminders: $e");
-    }
+    final reminders = await _apiService.fetchLightActivityReminders();
+    setState(() {
+      _lightActivityReminders = reminders;
+    });
   }
 
   Future<void> updateToggleValueLightActivityReminder(int id, int toggleValue) async {
-    try {
-      await _apiService.updateToggleValueLightActivityReminder(id, toggleValue);
-    } catch (e) {
-      print("Error updating toggle value: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error updating toggle value: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    await _apiService.updateToggleValueLightActivityReminder(id, toggleValue);
   }
 
   void _toggleNotification(String activityName, bool isEnabled, DateTime scheduledDate, String frequency, String title, String body) {
@@ -158,13 +144,13 @@ class _PengingatOlahragaScreenState extends State<PengingatOlahragaScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.black),
+          icon: Icon(Icons.chevron_left_rounded, color: AppColors.darkGrey),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Pengingat Olahraga',
           style: TextStyle(
-            color: AppColors.black,
+            color: AppColors.darkGrey,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -220,7 +206,10 @@ class _PengingatOlahragaScreenState extends State<PengingatOlahragaScreen> {
                               _rescheduleAllNotifications();
                             }
                           },
-                          activeColor: AppColors.lightGrey,
+                          activeTrackColor: Colors.white,
+                          inactiveTrackColor: AppColors.lightGrey,
+                          thumbColor: AppColors.primary,
+                          inactiveThumbColor: Colors.white,
                         ),
                       ),
                     ],
@@ -243,6 +232,7 @@ class _PengingatOlahragaScreenState extends State<PengingatOlahragaScreen> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
+                      color: AppColors.darkGrey,
                     ),
                   ),
                   SizedBox(height: 10),
@@ -279,6 +269,7 @@ class _PengingatOlahragaScreenState extends State<PengingatOlahragaScreen> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
+                      color: AppColors.darkGrey,
                     ),
                   ),
                   SizedBox(height: 10),
@@ -341,11 +332,16 @@ class _PengingatOlahragaScreenState extends State<PengingatOlahragaScreen> {
           width: double.infinity,
           height: 40,
           child: ElevatedButton(
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              final result = await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => TambahJadwalOlahragaScreen()),
               );
+
+              if (result == true) {
+                // Fetch ulang data jika penambahan berhasil
+                fetchLightActivityReminders();
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
@@ -369,7 +365,7 @@ class _PengingatOlahragaScreenState extends State<PengingatOlahragaScreen> {
                     Padding(
                       padding: const EdgeInsets.only(left: 6.0),
                       child: Text(
-                        ButtonPengingatText.tambah,
+                        ButtonPengingatText.tambahJadwalOlahragaButtonText,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 15,
@@ -427,12 +423,14 @@ class _PengingatOlahragaScreenState extends State<PengingatOlahragaScreen> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
+                      color: AppColors.darkGrey,
                     ),
                   ),
                   Text(
                     frequency,
                     style: TextStyle(
                       fontSize: 12,
+                      color: AppColors.darkGrey,
                     ),
                   ),
                 ],
@@ -447,6 +445,7 @@ class _PengingatOlahragaScreenState extends State<PengingatOlahragaScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
+                        color: AppColors.darkGrey,
                       ),
                     ),
                   ),
@@ -489,12 +488,14 @@ class _PengingatOlahragaScreenState extends State<PengingatOlahragaScreen> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
+                      color: AppColors.darkGrey,
                     ),
                   ),
                   Text(
                     frequency,
                     style: TextStyle(
                       fontSize: 12,
+                      color: AppColors.darkGrey,
                     ),
                   ),
                 ],
@@ -509,6 +510,7 @@ class _PengingatOlahragaScreenState extends State<PengingatOlahragaScreen> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
+                        color: AppColors.darkGrey,
                       ),
                     ),
                   ),

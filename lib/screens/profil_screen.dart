@@ -16,7 +16,7 @@ class ProfilScreen extends StatefulWidget {
   _ProfilScreen createState() => _ProfilScreen();
 }
 
-class _ProfilScreen extends State<ProfilScreen> {
+class _ProfilScreen extends State<ProfilScreen> with WidgetsBindingObserver {
   final ApiService _apiService = ApiService();
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   Map<String, dynamic>? _userData;
@@ -24,7 +24,22 @@ class _ProfilScreen extends State<ProfilScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this); // Tambahkan observer
     _fetchUserData();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this); // Hapus observer
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      _fetchUserData(); // Fetch data ketika aplikasi kembali ke keadaan resumed
+    }
   }
 
   Future<void> _fetchUserData() async {
@@ -83,7 +98,7 @@ class _ProfilScreen extends State<ProfilScreen> {
             ),
           ),
           content: const Text(
-            'Lo yakin mau keluar dari akun ini?',
+            'Kamu yakin mau keluar dari akun ini?',
             style: TextStyle(
               fontWeight: FontWeight.normal,
             ),
@@ -93,7 +108,7 @@ class _ProfilScreen extends State<ProfilScreen> {
               child: const Text(
                 'Batal',
                 style: TextStyle(
-                  color: AppColors.primary,
+                  color: AppColors.darkGrey,
                 ),
               ),
               onPressed: () {
@@ -162,7 +177,16 @@ class _ProfilScreen extends State<ProfilScreen> {
                       radius: 60,
                       backgroundColor: AppColors.secondary,
                       child: ClipOval(
-                        child: SvgPicture.asset(
+                        child: _userData != null
+                            ? Image.asset(
+                          _userData!['gender'] == 'male'
+                              ? 'assets/images/male_avatar.png'
+                              : 'assets/images/female_avatar.png',
+                          height: 120,
+                          width: 120,
+                          fit: BoxFit.cover,
+                        )
+                            : SvgPicture.asset(
                           AppVectors.iconUser,
                           height: 100,
                           width: 100,
@@ -173,281 +197,308 @@ class _ProfilScreen extends State<ProfilScreen> {
                   ],
                 ),
               ),
+
               Expanded(
                 flex: 1,
-                child: Container(
-                  alignment: Alignment.topCenter,
-                  padding: const EdgeInsets.only(left: 20, right: 20, top: 28),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(24),
-                    ),
-                  ),
-                  child: ListView(
-                    children: [
-                      const Text(
-                        "Informasi Pribadi",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
+                child: Stack(
+                  children: [
+                    // SizedBox berwarna abu-abu di belakang
+                    Positioned.fill(
+                      child: SizedBox(
+                        height: 100,
+                        child: Container(
+                          margin: EdgeInsets.symmetric(horizontal: 20.0),
+                          padding: EdgeInsets.all(16.0),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300], // Warna abu-abu
+                            borderRadius: BorderRadius.circular(32.0),
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      Container(
-                        decoration: BoxDecoration(
+                    ),
+                    // Container berwarna putih di depan
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16.0),
+                      child: Container(
+                        alignment: Alignment.topCenter,
+                        padding: EdgeInsets.all(12.0),
+                        decoration: const BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.lightGrey, width: 1),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(24.0),
+                            topRight: Radius.circular(24.0),
+                          ),
                         ),
-                        child: Column(
+                        child: ListView(
+                          padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                           children: [
-                            ListTile(
-                              contentPadding: const EdgeInsets.only(
-                                  right: 16, left: 16, top: 16),
-                              title: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Nama Lengkap',
-                                    style: TextStyle(
-                                      color: AppColors.darkGrey,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _userData?['name'] ?? 'Loading...',
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                      color: AppColors.darkGrey,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              trailing: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    'Ubah',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: AppColors.darkGrey,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  SizedBox(width: 4),
-                                  Icon(Icons.chevron_right, color: AppColors.darkGrey),
-                                ],
-                              ),
-                              onTap: () async {
-                                // Navigasi ke UbahNamaScreen
-                                await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => UbahNamaScreen()),
-                                );
-
-                                // Setelah kembali, ambil data pengguna terbaru
-                                await _fetchUserData();
-                              },
-                            ),
-                            ListTile(
-                              contentPadding: const EdgeInsets.only(right: 16, left: 16, top: 16),
-                              title: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Jenis Kelamin',
-                                    style: TextStyle(
-                                      color: AppColors.darkGrey,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _userData?['gender'] == 'male' ? 'Laki-Laki' : 'Perempuan',
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: AppColors.darkGrey,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              trailing: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    'Ubah',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: AppColors.darkGrey,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  SizedBox(width: 4),
-                                  Icon(Icons.chevron_right, color: AppColors.darkGrey),
-                                ],
-                              ),
-                              onTap: () async {
-                                // Kirim data jenis kelamin yang baru ke ProfilScreen
-                                final newGender = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => UbahJenisKelamin()),
-                                );
-
-                                if (newGender != null) {
-                                  // Perbarui data pengguna secara lokal
-                                  setState(() {
-                                    _userData?['gender'] = newGender;
-                                  });
-                                }
-                              },
-                            ),
-                            ListTile(
-                              contentPadding: const EdgeInsets.only(right: 16, left: 16, top: 16),
-                              title: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Edit Personalisasi',
-                                    style: TextStyle(
-                                      color: AppColors.darkGrey,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              trailing: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    'Ubah',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: AppColors.darkGrey,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  SizedBox(width: 4),
-                                  Icon(Icons.chevron_right, color: AppColors.darkGrey),
-                                ],
-                              ),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => PersonalizationScreen(fromProfil: true)),
-                                );
-                              },
-                            ),
-                            ListTile(
-                              contentPadding: const EdgeInsets.only(
-                                  right: 16, left: 16, top: 16),
-                              title: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Email',
-                                    style: TextStyle(
-                                      color: AppColors.darkGrey,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _userData?['email'] ?? 'Loading...',
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: AppColors.darkGrey,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            ListTile(
-                              contentPadding: const EdgeInsets.only(
-                                  right: 16, left: 16, top: 16, bottom: 16),
-                              title: const Text(
-                                'Kata Sandi',
+                            Padding(
+                              padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0, top: 16.0),
+                              child: const Text(
+                                "Informasi Pribadi",
                                 style: TextStyle(
-                                  color: AppColors.darkGrey,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  fontSize: 14,
+                                  color: Colors.black,
                                 ),
                               ),
-                              trailing: const Row(
-                                mainAxisSize: MainAxisSize.min,
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: AppColors.lightGrey, width: 1),
+                              ),
+                              child: Column(
                                 children: [
-                                  Text(
-                                    'Ubah',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: AppColors.darkGrey,
-                                      fontWeight: FontWeight.w500,
+                                  ListTile(
+                                    contentPadding: const EdgeInsets.only(right: 16, left: 16, top: 16),
+                                    title: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'Nama Lengkap',
+                                          style: TextStyle(
+                                            color: AppColors.darkGrey,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          _userData?['name'] ?? 'Loading...',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            color: AppColors.darkGrey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    trailing: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Ubah',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: AppColors.darkGrey,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        SizedBox(width: 4),
+                                        Icon(Icons.chevron_right, color: AppColors.darkGrey),
+                                      ],
+                                    ),
+                                    onTap: () async {
+                                      // Navigasi ke UbahNamaScreen
+                                      await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => UbahNamaScreen()),
+                                      );
+
+                                      // Setelah kembali, ambil data pengguna terbaru
+                                      await _fetchUserData();
+                                    },
+                                  ),
+                                  ListTile(
+                                    contentPadding: const EdgeInsets.only(right: 16, left: 16, top: 16),
+                                    title: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'Jenis Kelamin',
+                                          style: TextStyle(
+                                            color: AppColors.darkGrey,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          _userData?['gender'] == 'male' ? 'Laki-Laki' : 'Perempuan',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: AppColors.darkGrey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    trailing: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Ubah',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: AppColors.darkGrey,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        SizedBox(width: 4),
+                                        Icon(Icons.chevron_right, color: AppColors.darkGrey),
+                                      ],
+                                    ),
+                                    onTap: () async {
+                                      // Kirim data jenis kelamin yang baru ke ProfilScreen
+                                      final newGender = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => UbahJenisKelamin()),
+                                      );
+
+                                      if (newGender != null) {
+                                        // Perbarui data pengguna secara lokal
+                                        setState(() {
+                                          _userData?['gender'] = newGender;
+                                        });
+                                      }
+                                    },
+                                  ),
+                                  ListTile(
+                                    contentPadding: const EdgeInsets.only(right: 16, left: 16, top: 16),
+                                    title: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'Edit Personalisasi',
+                                          style: TextStyle(
+                                            color: AppColors.darkGrey,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    trailing: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Ubah',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: AppColors.darkGrey,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        SizedBox(width: 4),
+                                        Icon(Icons.chevron_right, color: AppColors.darkGrey),
+                                      ],
+                                    ),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => PersonalizationScreen(fromProfil: true)),
+                                      );
+                                    },
+                                  ),
+                                  ListTile(
+                                    contentPadding: const EdgeInsets.only(
+                                        right: 16, left: 16, top: 16),
+                                    title: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'Email',
+                                          style: TextStyle(
+                                            color: AppColors.darkGrey,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          _userData?['email'] ?? 'Loading...',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: AppColors.darkGrey,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  SizedBox(width: 4),
-                                  Icon(Icons.chevron_right, color: AppColors.darkGrey),
+                                  ListTile(
+                                    contentPadding: const EdgeInsets.only(
+                                        right: 16, left: 16, top: 16, bottom: 16),
+                                    title: const Text(
+                                      'Kata Sandi',
+                                      style: TextStyle(
+                                        color: AppColors.darkGrey,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    trailing: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Ubah',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: AppColors.darkGrey,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        SizedBox(width: 4),
+                                        Icon(Icons.chevron_right, color: AppColors.darkGrey),
+                                      ],
+                                    ),
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => UbahKataSandi()));
+                                    },
+                                  ),
                                 ],
                               ),
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => UbahKataSandi()));
-                              },
                             ),
+                            SizedBox(height: 16),
+                            ElevatedButton.icon(
+                              onPressed: () => _showLogoutDialog(context),
+                              icon: const Icon(Icons.logout, color: Colors.white),
+                              label: const Text(
+                                'Keluar',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.danger,
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 12, horizontal: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            const Text(
+                              'Dukung dan Ikuti Kami',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppColors.darkGrey,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _socialButton(AppVectors.iconInstagram, 'https://www.instagram.com/zynergy.id/'),
+                                const SizedBox(width: 12),
+                                _socialButton(AppVectors.iconGithub, 'https://github.com/yulia30359/finpro-msib-7-kelompok-2'),
+                              ],
+                            ),
+                            SizedBox(height: 20),
                           ],
                         ),
                       ),
-                      SizedBox(height: 16),
-                      ElevatedButton.icon(
-                        onPressed: () => _showLogoutDialog(context),
-                        icon: const Icon(Icons.logout, color: Colors.white),
-                        label: const Text(
-                          'Keluar',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.danger,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 12, horizontal: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      const Text(
-                        'Dukung dan Ikuti Kami',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.darkGrey,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _socialButton(AppVectors.iconInstagram, 'https://www.instagram.com/zynergy.id/'),
-                          const SizedBox(width: 12),
-                          _socialButton(AppVectors.iconGithub, 'https://github.com/yulia30359/finpro-msib-7-kelompok-2'),
-                        ],
-                      ),
-                      SizedBox(height: 20),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ],

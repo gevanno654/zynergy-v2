@@ -21,6 +21,56 @@ class _VerificationCodeForgetPassScreenState extends State<VerificationCodeForge
   // Fungsi untuk menggabungkan nilai OTP dari semua controller
   String get otp => _otpControllers.map((controller) => controller.text).join();
 
+  Future<void> _resendOTP() async {
+    final response = await _apiService.resendOTP();
+
+    if (response.success) {
+      _showSuccessDialog('Kode OTP berhasil dikirim ulang!');
+    } else {
+      _showErrorDialog(response.message);
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Verifikasi Gagal'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showSuccessDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Sukses'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -197,17 +247,22 @@ class _VerificationCodeForgetPassScreenState extends State<VerificationCodeForge
                             // Panggil fungsi untuk verifikasi OTP
                             _verifyOTP();
                           },
-                          child: Text(
-                            'Verifikasi',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Verifikasi',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
-                            minimumSize: Size(350, 50),
+                            minimumSize: Size(320, 50),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8.0),
                             ),
@@ -215,20 +270,23 @@ class _VerificationCodeForgetPassScreenState extends State<VerificationCodeForge
                         ),
                         SizedBox(height: 10),
                         ElevatedButton(
-                          onPressed: () {
-                            // Tambahkan logika untuk mengirim ulang OTP di sini
-                          },
-                          child: Text(
-                            'Kirim Ulang Kode OTP',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          onPressed: _resendOTP,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Kirim Ulang Kode OTP',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
                             foregroundColor: AppColors.primary,
-                            minimumSize: Size(350, 50),
+                            minimumSize: Size(320, 50),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8.0),
                               side: BorderSide(color: AppColors.primary),

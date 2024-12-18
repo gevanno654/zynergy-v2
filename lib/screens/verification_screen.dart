@@ -43,7 +43,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
   Future<void> _verifyOTP() async {
     String otp = _otpControllers.map((controller) => controller.text).join('');
-    print('OTP: $otp'); // Tambahkan log untuk memastikan OTP yang dikirimkan benar
+    // print('OTP: $otp'); // Tambahkan log untuk memastikan OTP yang dikirimkan benar
 
     final response = await _apiService.verifyEmail(otp);
 
@@ -310,12 +310,17 @@ class _VerificationScreenState extends State<VerificationScreen> {
                         // Button 'Verifikasi'
                         ElevatedButton(
                           onPressed: _verifyOTP,
-                          child: Text(
-                            'Verifikasi',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Verifikasi',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
@@ -331,12 +336,17 @@ class _VerificationScreenState extends State<VerificationScreen> {
                         // Button 'Kirim Ulang Kode OTP'
                         ElevatedButton(
                           onPressed: _resendOTP,
-                          child: Text(
-                            'Kirim Ulang Kode OTP',
-                            style: TextStyle(
-                              color: AppColors.primary,
-                              fontSize: 18,
-                            ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Kirim Ulang Kode OTP',
+                                style: TextStyle(
+                                  color: AppColors.primary,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,

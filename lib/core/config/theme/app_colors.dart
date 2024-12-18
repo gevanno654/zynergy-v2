@@ -10,4 +10,5 @@ class AppColors {
   static const lightGrey = Color(0xFFDFDFDF);
   static const danger = Color(0xFFC21F1F);
   static const grey = Colors.grey;
+  static const disable = Color(0xff777777);
 }

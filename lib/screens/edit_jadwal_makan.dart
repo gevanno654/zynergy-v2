@@ -196,69 +196,49 @@ class _EditJadwalMakanScreenState extends State<EditJadwalMakanScreen> {
       'toggle_value': toggleValue, // Tambahkan ini
     };
 
-    try {
-      // Memperbarui jadwal makan yang sudah ada di database
-      await _apiService.updateMealReminder(widget.mealSchedule['id'], editedMealReminder);
+    // Memperbarui jadwal makan yang sudah ada di database
+    await _apiService.updateMealReminder(widget.mealSchedule['id'], editedMealReminder);
 
-      // Batalkan notifikasi lama
-      await _notificationService.cancelNotification(widget.mealSchedule['id']);
+    // Batalkan notifikasi lama
+    await _notificationService.cancelNotification(widget.mealSchedule['id']);
 
-      // Jadwalkan ulang notifikasi baru jika toggle switch diaktifkan
-      if (toggleValue == 1) {
-        DateTime scheduledDate = DateTime.now().add(Duration(seconds: 1)); // Set the default time to 1 second later
-        scheduledDate = scheduledDate.copyWith(hour: _selectedHour, minute: _selectedMinute, second: 0);
+    // Jadwalkan ulang notifikasi baru jika toggle switch diaktifkan
+    if (toggleValue == 1) {
+      DateTime scheduledDate = DateTime.now().add(Duration(seconds: 1)); // Set the default time to 1 second later
+      scheduledDate = scheduledDate.copyWith(hour: _selectedHour, minute: _selectedMinute, second: 0);
 
-        // Cetak notification_id ke console
-        print('Scheduling notification with id: ${widget.mealSchedule['id']}');
+      // Cetak notification_id ke console
+      // print('Scheduling notification with id: ${widget.mealSchedule['id']}');
 
-        await _notificationService.scheduleNotification(
-          widget.mealSchedule['id'], // Gunakan id sebagai notification_id
-          'Pengingat Makan',
-          'Saatnya makan: ${_namaJadwalController.text}',
-          scheduledDate,
-          _selectedFrequency,
-        );
-      }
-
-      Navigator.of(context).pop();
-    } catch (e) {
-      print("Error saving edited meal reminder: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error saving edited meal reminder: $e'),
-          backgroundColor: Colors.red,
-        ),
+      await _notificationService.scheduleNotification(
+        widget.mealSchedule['id'], // Gunakan id sebagai notification_id
+        'Pengingat Makan',
+        'Saatnya makan: ${_namaJadwalController.text}',
+        scheduledDate,
+        _selectedFrequency,
       );
     }
+
+    Navigator.of(context).pop();
   }
 
   Future<void> _deleteMealReminder() async {
-    try {
-      // Batalkan notifikasi
-      await _notificationService.cancelNotification(widget.mealSchedule['id']);
+    // Batalkan notifikasi
+    await _notificationService.cancelNotification(widget.mealSchedule['id']);
 
-      // Jika jadwal juga perlu dihapus dari database
-      await _apiService.deleteMealReminder(widget.mealSchedule['id']);
+    // Jika jadwal juga perlu dihapus dari database
+    await _apiService.deleteMealReminder(widget.mealSchedule['id']);
 
-      // Beri notifikasi kepada pengguna
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Jadwal berhasil dihapus'),
-          backgroundColor: Colors.green,
-        ),
-      );
+    // Beri notifikasi kepada pengguna
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Jadwal berhasil dihapus'),
+        backgroundColor: Colors.green,
+      ),
+    );
 
-      // Kembali ke layar sebelumnya
-      Navigator.of(context).pop();
-    } catch (e) {
-      print("Error deleting meal reminder: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error deleting meal reminder: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    // Kembali ke layar sebelumnya
+    Navigator.of(context).pop();
   }
 
   void _showDeleteConfirmationDialog(BuildContext context) {
@@ -276,7 +256,7 @@ class _EditJadwalMakanScreenState extends State<EditJadwalMakanScreen> {
             ),
           ),
           content: Text(
-            'Lo yakin mau hapus jadwal ini?',
+            'Beneran mau hapus jadwal ini?',
             style: TextStyle(
               fontWeight: FontWeight.normal,
             ),
@@ -341,7 +321,7 @@ class _EditJadwalMakanScreenState extends State<EditJadwalMakanScreen> {
             ),
           ),
           content: Text(
-            'Lo yakin mau nyimpen editan jadwal ini?',
+            'Siap simpan jadwal makanmu?',
             style: TextStyle(
               fontWeight: FontWeight.normal,
             ),
@@ -399,13 +379,13 @@ class _EditJadwalMakanScreenState extends State<EditJadwalMakanScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.chevron_left_rounded, color: AppColors.darkGrey),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Sunting Jadwal Makan',
           style: TextStyle(
-            color: Colors.black,
+            color: AppColors.darkGrey,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -427,10 +407,24 @@ class _EditJadwalMakanScreenState extends State<EditJadwalMakanScreen> {
                       controller: _namaJadwalController,
                       decoration: InputDecoration(
                         labelText: EditJadwalMakanText.namaJadwalLabel,
-                        border: OutlineInputBorder(
+                        labelStyle: TextStyle(
+                          color: AppColors.darkGrey,
+                        ),
+                        hintText: 'Drop menu makananmu di sini!',
+                        hintStyle: TextStyle(
+                          color: AppColors.grey,
+                        ),
+                        focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
                           borderSide: BorderSide(
-                            color: AppColors.lightGrey,
+                            color: AppColors.grey,
+                            width: 1.0,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: BorderSide(
+                            color: AppColors.grey,
                             width: 1.0,
                           ),
                         ),
@@ -439,6 +433,11 @@ class _EditJadwalMakanScreenState extends State<EditJadwalMakanScreen> {
                     SizedBox(height: 30),
                     Text(
                       PengingatDetailText.infoPilihWaktu,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.darkGrey,
+                      ),
                     ),
                     SizedBox(height: 10),
                     GestureDetector(
@@ -451,7 +450,7 @@ class _EditJadwalMakanScreenState extends State<EditJadwalMakanScreen> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8.0),
                           border: Border.all(
-                            color: AppColors.lightGrey,
+                            color: AppColors.grey,
                             width: 1.0,
                           ),
                         ),
@@ -471,9 +470,9 @@ class _EditJadwalMakanScreenState extends State<EditJadwalMakanScreen> {
                       color: Colors.white,
                       elevation: 0.0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.0),
+                        borderRadius: BorderRadius.circular(8.0),
                         side: BorderSide(
-                          color: AppColors.lightGrey,
+                          color: AppColors.grey,
                           width: 1.0,
                         ),
                       ),

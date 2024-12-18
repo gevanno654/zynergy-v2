@@ -190,7 +190,7 @@ class PengingatScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(16.0),
         ),
         child: Padding(
-          padding: EdgeInsets.all(10.0),
+          padding: EdgeInsets.only(top: 18.0, right: 10.0, left: 10.0, bottom: 10.0),
           child: Column(
             children: [
               Transform.translate(

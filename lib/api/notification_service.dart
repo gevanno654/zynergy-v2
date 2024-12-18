@@ -1,7 +1,7 @@
 import 'dart:math';
+import 'dart:convert';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'dart:convert';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -300,7 +300,7 @@ class NotificationService {
 
   // Fungsi untuk memperbarui konten notifikasi dinamis
   void updateNotificationContent(List<Map<String, dynamic>> suggestMenus, List<Map<String, dynamic>> suggestAvoids) {
-    final random = Random();
+    final random = Random.secure();
 
     // Pilih menu secara acak
     final menuSarapan = suggestMenus.isNotEmpty ? suggestMenus[random.nextInt(suggestMenus.length)] : {};

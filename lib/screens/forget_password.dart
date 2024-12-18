@@ -4,6 +4,7 @@ import '../core/config/theme/app_colors.dart';
 import '../core/config/strings/app_text.dart';
 import '../api/api_service.dart';
 import 'login_screen.dart';
+import 'register_screen.dart';
 
 class ForgetPasswordScreen extends StatefulWidget {
   @override
@@ -16,6 +17,12 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
 
   Future<void> _sendResetCode() async {
     final email = _emailController.text;
+
+    if (email.isEmpty) {
+      _showEmptyEmailDialog();
+      return;
+    }
+
     final response = await _apiService.sendResetCode(email);
 
     if (response.success) {
@@ -25,10 +32,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
         MaterialPageRoute(builder: (context) => VerificationCodeForgetPassScreen(email: email)),
       );
     } else {
-      // Tampilkan pesan error jika gagal
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response.message)),
-      );
+      // Jika gagal, tampilkan dialog error
+      _showUnregisteredEmailDialog();
     }
   }
 
@@ -36,6 +41,121 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => LoginScreen()),
+    );
+  }
+
+  void _showEmptyEmailDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+              "Gagal!",
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 20,
+              color: AppColors.darkGrey,
+            ),
+          ),
+          content: Text(
+              "Drop dulu emailmu!",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.normal,
+              color: AppColors.darkGrey,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                  "OK!",
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.white,
+                ),
+              ),
+              style: TextButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showUnregisteredEmailDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            "Stop!",
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 20,
+              color: AppColors.darkGrey,
+            ),
+          ),
+          content: Text(
+            "Emailmu belum terdaftar!",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.normal,
+              color: AppColors.darkGrey,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Arahkan ke halaman pendaftaran
+                Navigator.of(context).pop();
+                Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterScreen()));
+              },
+              child: Text(
+                  "Daftar Sekarang",
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.primary,
+                ),
+              ),
+              style: TextButton.styleFrom(
+                side: BorderSide(
+                  width: 1.0,
+                  color: AppColors.primary,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                "OK!",
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.white,
+                ),
+              ),
+              style: TextButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -154,7 +274,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          'Lupa Kata Sandi',
+                          'Lupa Kata Sandi?',
                           style: TextStyle(
                             color: AppColors.darkGrey,
                             fontWeight: FontWeight.w600,
@@ -163,7 +283,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                         ),
                         SizedBox(height: 20),
                         Text(
-                          'Masukkan Email yang Terdaftar',
+                          'Drop Emailmu yang Udah Terdaftar',
                           style: TextStyle(
                             color: AppColors.darkGrey,
                             fontSize: 16,
@@ -195,20 +315,25 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                           style: TextStyle(color: AppColors.darkGrey),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Ketik Email Anda!';
+                              return 'Drop Emailmu disini!';
                             }
                             return null;
                           },
                         ),
-                        SizedBox(height: 20),
+                        SizedBox(height: 60),
                         ElevatedButton(
                           onPressed: _sendResetCode, // Panggil fungsi _sendResetCode
-                          child: Text(
-                            'Dapatkan Kode OTP',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Dapatkan Kode OTP',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
@@ -219,16 +344,21 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 20),
+                        SizedBox(height: 16),
                         ElevatedButton(
                           onPressed: _goBackToLogin, // Fungsi untuk kembali ke login
-                          child: Text(
-                            'Aku Inget Kata Sandiku',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.primary,
-                            ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Gajadi deh, udah inget',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ],
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,

@@ -128,8 +128,6 @@ class ApiService {
       }),
     );
 
-    print('Login Response: ${response.body}'); // Cetak respons API untuk debugging
-
     final apiResponse = ApiResponse.fromJson(jsonDecode(response.body));
 
     if (apiResponse.success) {
@@ -450,9 +448,6 @@ class ApiService {
       throw Exception('Token not found');
     }
 
-    // Log the meal reminder data to check for null values
-    print('Meal Reminder Data: $mealReminder');
-
     // Ensure all required fields have valid values
     if (mealReminder['meal_name'] == null || mealReminder['meal_name'].isEmpty) {
       throw Exception('Meal name is required');
@@ -501,7 +496,6 @@ class ApiService {
         }
       }
 
-      print('Scheduling notification: id=$id, frequency=$mealFrequency');
       _notificationService.scheduleNotification(
         id, // Gunakan id sebagai notification_id
         'Pengingat Makan',
@@ -648,7 +642,6 @@ class ApiService {
         }
       }
 
-      print('Scheduling sleep notification: id=$id, frequency=$sleepFrequency');
       _notificationService.scheduleNotification(
         id, // Gunakan id sebagai notification_id
         'Pengingat Tidur',
@@ -657,7 +650,6 @@ class ApiService {
         sleepFrequency,
       );
 
-      print('Scheduling wake notification: id=$id, frequency=$sleepFrequency');
       _notificationService.scheduleNotificationWithCustomSound(
         id + 1, // Gunakan id + 1 sebagai notification_id untuk alarm bangun
         'Pengingat Bangun',
@@ -776,9 +768,6 @@ class ApiService {
       },
       body: jsonEncode(lightActivityReminder),
     );
-
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
 
     if (response.statusCode == 201) {
       final data = jsonDecode(response.body);
@@ -1019,10 +1008,6 @@ class ApiService {
       Uri.parse('$baseUrl/articles/suggest'),
       headers: {'Authorization': 'Bearer $token'},
     );
-
-    // Log status code dan body dari respons
-    print("Status Code: ${response.statusCode}");
-    print("Response Body: ${response.body}");
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);

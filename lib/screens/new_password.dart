@@ -180,7 +180,7 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                           obscureText: _obscureText,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Ketik Kata Sandi Anda!';
+                              return 'Drop Kata Sandimu di sini!';
                             }
                             return null;
                           },
@@ -223,10 +223,10 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                           obscureText: _obscureText,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Ketik Konfirmasi Kata Sandi Anda!';
+                              return 'Drop Konfirmasi Kata Sandimu di sini!';
                             }
                             if (value != _passwordController.text) {
-                              return 'Kata Sandi tidak cocok!';
+                              return 'Konfirmasi Kata Sandimu nggak cocok!';
                             }
                             return null;
                           },
@@ -237,17 +237,22 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                             // Tambahkan logika untuk mengubah kata sandi di sini
                             _resetPassword();
                           },
-                          child: Text(
-                            'Ubah Kata Sandi',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Ubah Kata Sandi',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
-                            minimumSize: Size(350, 50),
+                            minimumSize: Size(320, 50),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8.0),
                             ),
@@ -272,7 +277,7 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
 
     if (password != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Kata sandi tidak cocok')),
+        SnackBar(content: Text('Konfirmasi Kata Sandimu nggak cocok!')),
       );
       return;
     }
@@ -282,7 +287,7 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
 
     if (response.success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Kata sandi berhasil direset')),
+        SnackBar(content: Text('Kata sandimu berhasil diubah')),
       );
       Navigator.pushReplacement(
         context,

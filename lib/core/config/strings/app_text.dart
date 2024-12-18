@@ -3,24 +3,24 @@
 class AppText {
   // Onboarding Screen Texts
   static const String onboardingTitle1 =
-      'Kesehatan itu investasi\nuntuk masa depan';
+      'Kesehatan itu investasi\nbuat masa depan, lho!';
   static const String onboardingDescription1 =
-      'Mulai dari langkah kecil bersama kami,\nkarena hidup aktif dan sehat itu keren!';
+      'Kita harus aware dengan kesehatan\nsebagai investasi jangka panjang!';
   static const String onboardingTitle2 =
-      'Ngga ada kata terlambat\nbuat mulai sehat';
+      'Ngga ada kata terlambat buat\nkamu yang ingin sehat';
   static const String onboardingDescription2 =
-      'Ambil langkah pertama dengan kami,\ndan rasakan manfaatnya di setiap harinya!';
+      'Mulai aja sekarang! Lebih cepet lebih baik.';
   static const String onboardingTitle3 =
-      'Temukan cara-cara seru buat jaga\ntubuh dan pikiran tetap sehat';
+      'Temuin cara seru buat jaga\ntubuh dan pikiranmu tetap sehat';
   static const String onboardingDescription3 =
-      'Siap untuk hidup lebih baik, lebih aktif, dan lebih bahagia';
+      'Mulai dari olahraga ringan, makan, tidur,\ndan ngerjain hal-hal yang bikin kamu happy.';
   static const String onboardingTitle4 =
-      'Jadilah generasi yang peduli\ndengan kesehatan diri';
+      'Patahkan ekspektasi mereka\nyang bilang Gen Z itu lemah!';
   static const String onboardingDescription4 =
-      'Kebiasaan sehat untuk masa depan yang lebih cerah';
+      'Buktikan kalau kita tuh kuat dan penuh semangat\nterutama dalam menjaga kesehatan.';
 
   // Login Screen Texts
-  static const String loginTitle = 'Login untuk Masuk';
+  static const String loginTitle = 'Masuk ke Akunmu';
   static const String loginSubtitle =
       'Ambil langkah pertama untuk mulai peduli kesehatanmu.';
   static const String loginEmailLabel = 'Email';
@@ -50,7 +50,7 @@ class AppText {
   static const contentPeregangan = 'Lakukan peregangan selama 10 menit sebelum beraktivitas untuk meningkatkan fleksibilitas, serta mengurangi risiko cedera.';
   static const tidurSiang = 'Luangkan waktu untuk tidur siang 15 menit';
   static const contentTidurSiang = 'Luangkan waktu untuk istirahat selama 15 menit di siang hari untuk memulihkan energi, mengurangi stres, dan meningkatkan fokus saat kembali beraktivitas.';
-  static const infoDurasiTidur = 'Mengaktifkan mode ini akan otomatis membuat alarm bangun 8 jam dari jadwal alarm tidur dan menonaktifkan alarm bangun yang telah diatur.';
+  static const infoDurasiTidur = 'Mengaktifkan mode ini akan membangunkanmu 8 jam setelah notifikasi tidur.';
   static const pengingatmu = 'Pengingatmu';
   static const rekomendasiArtikel = 'Rekomendasi Artikel Untukmu';
   static const selengkapnya = 'Selengkapnya';
@@ -63,55 +63,58 @@ class AppText {
   // Pengingat Screen Texts
   static const String pengingatTitle = 'Pengingat';
   static const String pengingatMakanTitle = 'Pengingat Makan';
-  static const String pengingatMakanDescription = 'Pengingat makan ini membantu Anda menjaga pola makan teratur dengan notifikasi pada waktu-waktu makan yang ideal, seperti sarapan, makan siang, makan malam, dan camilan.';
+  static const String pengingatMakanDescription = 'Pengingat makan ini membantu kamu menjaga pola makan teratur dengan notifikasi pada waktu-waktu makan yang ideal, seperti sarapan, makan siang, makan malam, dan camilan.';
   static const String pengingatMakanButton = 'Atur Jadwal Makan';
   static const String pengingatTidurTitle = 'Pengingat Tidur';
-  static const String pengingatTidurDescription = 'Pengingat tidur membantu Anda menjaga jadwal tidur yang konsisten untuk meningkatkan kualitas tidur serta memberikan rekomendasi durasi waktu tidur yang baik.';
+  static const String pengingatTidurDescription = 'Pengingat tidur membantu kamu menjaga jadwal tidur yang konsisten untuk meningkatkan kualitas tidur serta memberikan rekomendasi durasi waktu tidur yang baik.';
   static const String pengingatTidurButton = 'Atur Jadwal Tidur';
   static const String pengingatOlahragaTitle = 'Pengingat Olahraga';
-  static const String pengingatOlahragaDescription = 'Pengingat olahraga membantu Anda tetap aktif dengan mengatur waktu latihan sesuai preferensi dan rutinitas Anda. Notifikasi akan mengingatkan untuk melakukan aktivitas fisik secara rutin, baik olahraga ringan, latihan kekuatan, ataupun peregangan.';
+  static const String pengingatOlahragaDescription = 'Pengingat olahraga membantu kamu tetap aktif dengan mengatur waktu latihan sesuai preferensi dan rutinitasmu.';
   static const String pengingatOlahragaButton = 'Atur Jadwal Olahraga';
   static const String pengingatCekKesehatanTitle = 'Pengingat Cek Kesehatan';
-  static const String pengingatCekKesehatanDescription = 'Pengingat cek kesehatan membantu Anda untuk tetap waspada terhadap kondisi kesehatan dengan mengatur jadwal pemeriksaan rutin mendeteksi dan mencegah masalah kesehatan sejak dini.';
+  static const String pengingatCekKesehatanDescription = 'Pengingat cek kesehatan membantu kamu untuk tetap waspada terhadap kondisi kesehatan dengan mengatur jadwal pemeriksaan rutin mendeteksi dan mencegah masalah kesehatan sejak dini.';
   static const String pengingatCekKesehatanButton = 'Atur Jadwal Cek Kesehatan';
 
   // Pengingat Detail Screen Texts
-  static const String jadwalBawaan = 'Jadwal Bawaan';
+  static const String jadwalBawaan = 'Rekomendasi Jadwal Untukmu';
   static const String jadwalKhusus = 'Jadwal Khusus';
-  static const String infoPilihWaktu = 'Tekan untuk Pilih Waktu';
-  static const String infoTanggal = 'Pilih Tanggal';
+  static const String infoPilihWaktu = 'Tekan untuk Memilih Waktu';
+  static const String infoTanggal = 'Tekan untuk Memilih Tanggal';
 
   // Button Pengingat Screen Texts
   static const String tambah = 'Tambah';
   static const String simpan = 'Simpan';
   static const String tambahJadwalMakanButtonText = 'Tambah Jadwal Makan';
   static const String tambahJadwalTidurButtonText = 'Tambah Jadwal Tidur';
+  static const String tambahJadwalOlahragaButtonText = 'Tambah Jadwal Olahraga';
+  static const String tambahJadwalCheckupButtonText = 'Tambah Jadwal Cek Kesehatan';
+
 
   // Card Setting Tambah & Edit
-  static const String frekuensi = 'Ulangi';
+  static const String frekuensi = 'Frekuensi';
   static const String vibration = 'Getar saat Berbunyi';
   static const String deleteAfterDo = 'Hapus Setelah Berbunyi';
 
   // Tambah Jadwal Makan Screen Texts
-  static const String tambahJadwalMakanNamaJadwalLabel = 'Nama Jadwal';
+  static const String tambahJadwalMakanNamaJadwalLabel = 'Menu Makanan';
 
   // Edit Jadwal Makan Screen Texts
-  static const String editJadwalMakanNamaJadwalLabel = 'Nama Jadwal';
+  static const String editJadwalMakanNamaJadwalLabel = 'Menu Makanan';
 
   // Pengingat Tidur Screen Texts
   static const String durasiTidurTerbaik = 'Durasi Tidur Terbaik';
 
   // Tambah Jadwal Tidur Screen Texts
-  static const String tambahJadwalTidurNamaJadwalLabel = 'Nama Jadwal';
+  static const String tambahJadwalTidurNamaJadwalLabel = 'Nama Jadwal Tidur';
 
   // Edit Jadwal Tidur Screen Texts
-  static const String editJadwalTidurNamaJadwalLabel = 'Nama Jadwal';
+  static const String editJadwalTidurNamaJadwalLabel = 'Nama Jadwal Tidur';
 
   // Tambah Jadwal Olahraga Screen Texts
-  static const String tambahJadwalOlahragaNamaJadwalLabel = 'Nama Jadwal';
+  static const String tambahJadwalOlahragaNamaJadwalLabel = 'Nama Olahraga';
 
   // Edit Jadwal Olahraga Screen Texts
-  static const String editJadwalOlahragaNamaJadwalLabel = 'Nama Jadwal';
+  static const String editJadwalOlahragaNamaJadwalLabel = 'Nama Olahraga';
 
   // Tambah Jadwal Checkup Screen Texts
   static const String tambahJadwalCheckupNamaJadwalLabel = 'Nama Jadwal';
@@ -203,6 +206,10 @@ extension ButtonPengingatText on AppText {
       AppText.tambahJadwalMakanButtonText;
   static const String tambahJadwalTidurButtonText =
       AppText.tambahJadwalTidurButtonText;
+  static const String tambahJadwalOlahragaButtonText =
+      AppText.tambahJadwalOlahragaButtonText;
+  static const String tambahJadwalCheckupButtonText =
+      AppText.tambahJadwalCheckupButtonText;
 }
 
 extension PengingatDetailText on AppText {

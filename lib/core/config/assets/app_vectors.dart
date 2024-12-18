@@ -38,4 +38,12 @@ class AppVectors {
   static const String iconCheckup = '${basepath}ic_cek_kesehatan$format';
   static const String iconNotification = '${basepath}ic_notification$format';
   static const String iconPersonalization = '${basepath}personalization$format';
+  static const String iconBeranda = '${basepath}ic_beranda$format';
+  static const String iconBerandaBold = '${basepath}ic_beranda_bold$format';
+  static const String iconPengingat = '${basepath}ic_pengingat$format';
+  static const String iconPengingatBold = '${basepath}ic_pengingat_bold$format';
+  static const String iconArtikel = '${basepath}ic_artikel$format';
+  static const String iconArtikelBold = '${basepath}ic_artikel_bold$format';
+  static const String iconProfil = '${basepath}ic_profil$format';
+  static const String iconProfilBold = '${basepath}ic_profil_bold$format';
 }

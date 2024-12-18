@@ -173,7 +173,6 @@ class _TambahJadwalMakanScreenState extends State<TambahJadwalMakanScreen> {
   Future<void> _saveMealReminder() async {
     // Check if the meal name is empty
     if (_namaJadwalController.text.isEmpty) {
-      // Show error dialog
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -205,39 +204,28 @@ class _TambahJadwalMakanScreenState extends State<TambahJadwalMakanScreen> {
     };
 
     // Log the meal reminder data to check for null values
-    print('Meal Reminder Data: $mealReminder');
+    // print('Meal Reminder Data: $mealReminder');
 
-    try {
-      // Menyimpan pengingat ke database
-      final int id = await _apiService.saveMealReminder(mealReminder);
+    // Menyimpan pengingat ke database
+    final int id = await _apiService.saveMealReminder(mealReminder);
 
-      // Menentukan waktu notifikasi
-      DateTime scheduledDate = DateTime.now().add(Duration(seconds: 1));
-      scheduledDate = scheduledDate.copyWith(hour: _selectedHour, minute: _selectedMinute, second: 0);
+    // Menentukan waktu notifikasi
+    DateTime scheduledDate = DateTime.now().add(Duration(seconds: 1));
+    scheduledDate = scheduledDate.copyWith(hour: _selectedHour, minute: _selectedMinute, second: 0);
 
-      // Menjadwalkan notifikasi berdasarkan frekuensi
-      await NotificationService().scheduleNotification(
-        id, // Gunakan id sebagai notification_id
-        'Pengingat Makan',
-        'Saatnya makan: ${_namaJadwalController.text}',
-        scheduledDate,
-        _selectedFrequency,  // Meneruskan nilai frekuensi
-      );
+    await NotificationService().scheduleNotification(
+      id, // Gunakan id sebagai notification_id
+      'Pengingat Makan',
+      'Saatnya makan: ${_namaJadwalController.text}',
+      scheduledDate,
+      _selectedFrequency,
+    );
 
-      // Save notification_id to SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('notification_id_$id', id); // Simpan id sebagai notification_id
+    // Save notification_id to SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('notification_id_$id', id); // Simpan id sebagai notification_id
 
-      Navigator.of(context).pop();
-    } catch (e) {
-      print("Error saving meal reminder: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error saving meal reminder: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    Navigator.of(context).pop();
   }
 
   @override
@@ -248,13 +236,13 @@ class _TambahJadwalMakanScreenState extends State<TambahJadwalMakanScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.chevron_left_rounded, color: AppColors.darkGrey),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Tambah Jadwal Makan',
           style: TextStyle(
-            color: Colors.black,
+            color: AppColors.darkGrey,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -276,10 +264,24 @@ class _TambahJadwalMakanScreenState extends State<TambahJadwalMakanScreen> {
                       controller: _namaJadwalController,
                       decoration: InputDecoration(
                         labelText: TambahJadwalMakanText.namaJadwalLabel,
-                        border: OutlineInputBorder(
+                        labelStyle: TextStyle(
+                          color: AppColors.darkGrey,
+                        ),
+                        hintText: 'Drop menu makananmu di sini!',
+                        hintStyle: TextStyle(
+                          color: AppColors.grey,
+                        ),
+                        focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
                           borderSide: BorderSide(
-                            color: AppColors.lightGrey,
+                            color: AppColors.grey,
+                            width: 1.0,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: BorderSide(
+                            color: AppColors.grey,
                             width: 1.0,
                           ),
                         ),
@@ -288,6 +290,11 @@ class _TambahJadwalMakanScreenState extends State<TambahJadwalMakanScreen> {
                     SizedBox(height: 30),
                     Text(
                       PengingatDetailText.infoPilihWaktu,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.darkGrey,
+                      ),
                     ),
                     SizedBox(height: 10),
                     GestureDetector(
@@ -300,7 +307,7 @@ class _TambahJadwalMakanScreenState extends State<TambahJadwalMakanScreen> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8.0),
                           border: Border.all(
-                            color: AppColors.lightGrey,
+                            color: AppColors.grey,
                             width: 1.0,
                           ),
                         ),
@@ -320,9 +327,9 @@ class _TambahJadwalMakanScreenState extends State<TambahJadwalMakanScreen> {
                       color: Colors.white,
                       elevation: 0.0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.0),
+                        borderRadius: BorderRadius.circular(8.0),
                         side: BorderSide(
-                          color: AppColors.lightGrey,
+                          color: AppColors.grey,
                           width: 1.0,
                         ),
                       ),
